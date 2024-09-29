@@ -1,0 +1,100 @@
+/* code block */
+
+/* Style for the source code block */
+.sourceCode {
+    font-size: 12.5px;
+    font-family: monospace;
+    border-radius: 4px;
+    padding: 10px;
+    overflow-x: auto; 
+    white-space: pre; 
+    box-shadow: 0 0px 1px rgba(1,1,1,0.5); 
+    
+}
+
+.sourceCode code {
+    display: block;
+    white-space: pre;
+}
+
+a {
+    color: #0074d9; 
+    text-decoration: none; 
+}
+
+
+
+/* ----- */
+
+h1 {
+    font-weight: bold;
+    font-size: 30px;
+}
+h1
+{
+    border-bottom: 1px solid black;
+}
+h2 {
+    border-bottom: 2px solid #ccc;
+}
+h2
+{
+    
+    font-size: 18px;
+    font-family: Poppins;
+
+}
+.title {
+    font-size: 45px;
+}
+.author
+{
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+p, li {
+    font-size: 16px;
+  font-family: 'Times New Roman', sans-serif;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #0000;
+    border-top: 1px solid black;
+    margin-top: 10px;
+    font-size: 12px;
+}
+.footer .left {
+    text-align: left;
+}
+.footer .right {
+    text-align: right;
+}
+.footer-menu a:hover {
+
+    color: blue; 
+    text-decoration: underline; 
+}
+
+/* code block */ 
+.shell
+ {
+    font-size: 15.5px;
+    font-family: monospace;
+    border-radius: 4px;
+    padding: 10px;
+    overflow-x: auto; 
+    white-space: pre; 
+    box-shadow: 0 0px 1px rgba(1,1,1,0.5); 
+    
+}
+
+.shell code {
+    display: block;
+    white-space: pre;
+}
+
+
+

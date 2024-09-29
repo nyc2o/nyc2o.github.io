@@ -1,0 +1,258 @@
+#+title: Docker Containers Are Too Fast
+#+author: Nycto
+#+language: en
+#+startup: overview
+#+PANDOC_OPTIONS:"epub-cover-image:/home/nycto/github/nyc2o.github.io/img/v.png" standalone:t
+#+PANDOC_OPTIONS:"epub-cover-image:/home/nycto/github/nyc2o.github.io/img/r.png" standalone:t
+#+PANDOC_OPTIONS:"epub-cover-image:/home/nycto/github/nyc2o.github.io/img/t.png" standalone:t
+#+PANDOC_OPTIONS:"epub-cover-image:/home/nycto/github/nyc2o.github.io/img/q.png" standalone:t
+#+PANDOC_OPTIONS:"epub-cover-image:/home/nycto/github/nyc2o.github.io/img/u.png" standalone:t
+#+PANDOC_OPTIONS:"epub-cover-image:/home/nycto/github/nyc2o.github.io/img/d.png" standalone:t
+#+PANDOC_OPTIONS:"epub-cover-image:/home/nycto/github/nyc2o.github.io/img/x.png" standalone:t
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../css/nix.css">
+
+
+[[file:../index.html][oHome]]   ✾   [[file:../about.html][About]]
+
+* Introduction
+Hello there! From the last article, I mentioned NixOS, right? My machine fully supports NixOS, and my experiences so far have exceeded my expectations. There was a time when I needed to install an application in my NixOS environment and forgot that NixOS uses Nix to install packages, meaning only software from Nixpkgs is installable. So, what’s one elegant way to install software applications outside of Nixpkgs? and that would be using [[https://www.docker.com][Docker]]. I don’t have any experience with Docker so far and [[https://github.com/ebzzry][ebzzry]] taught me the basics and techniques on how to use it, and I think delving it along the way is a good choice as part of your toolset as a developer.
+
+* Docker
+Docker primarily runs through the command line interface (CLI), which is where you will find the most flexibility and control for managing containers—which allows to start quickly and use system resources more efficiently than traditional virtual machines. However, there are also graphical user interface (GUI) tools available that can help you manage Docker containers more easily, such as: Docker Desktop, Portainer and etc. depending on your needs. For me, I prefer to use it through my NixOS shell environment.
+
+* Installation
+For NixOS users, I installed my Docker by adding this snippet through my NixOS configuration:
+#+begin_src nix
+   virtualisation.docker.enable = true;
+
+    users = {
+    extraUsers.specify-your-username = {
+      isNormalUser = true;
+      uid = 1000;
+      extraGroups = [ "docker" ];
+    };
+#+end_src
+
+Don't forget to save it once you already declare everything in your configuration then reboot your machine to take an effect:
+#+begin_src shell
+$ reboot
+#+end_src
+
+After rebooting your machine, run your NixOS shell to ensure if Docker is already installed in your user environment by executing this commands:
+#+begin_src  shell
+$ docker info
+$ docker ps
+#+end_src
+
+* Usage
+** Install Ubuntu
+On this section we will be using Docker to install Ubuntu inside Docker containers—inside the NixOS. Fun right?
+
+First, use the *NixOS shell* to install the latest Ubuntu Image:
+ #+begin_src  shell
+$ docker pull Ubuntu
+ #+end_src
+
+Second, make a directory on your *$HOME*, we can name the directory as /docker-shell/ and make it separated to the NixOS shell. Meaning we have 1) *NixOS shell* and 2) *Docker shell* for this operation.
+
+Inside the directory—*docker-shell*: 
+ #+begin_src  shell
+$ touch shell.nix
+$ nano shell.nix
+ #+end_src
+
+When editing the development environment configuration of our Docker shell, you may use this snippet:
+#+begin_src nix                      
+{ pkgs ? import <nixpkgs> {} }:
+
+   pkgs.mkShell {
+    nativeBuildInputs = with pkgs.buildPackages; [ docker ];
+ }
+#+end_src
+
+Then just run:
+#+begin_src  shell
+$  nix-shell
+#+end_src
+
+Use *Docker shell* and perform the commands respectively. The former is to list images so we can be able to know if Ubuntu Image exist or successfully installed. Lastly, is to show if you have any containers running:
+#+begin_src  shell
+$ docker images  -a
+$ docker ps -a
+#+end_src
+
+In NixOS shell:
+#+begin_src  shell
+$ docker exec -it ubuntu bash
+#+end_src
+
+/NOTE: *docker exec* is for running commands directly inside the container, then it presents a shell for you to interact with. If this command doesn't work on your end and received an error perform the next command below/
+#+begin_src  shell
+$ docker run -it --rm ubuntu
+#+end_src
+ [[../img/v.png]]
+
+Inside the container:
+#+begin_src  shell
+$ lsb_release -a
+#+end_src
+
+/NOTE: If you received an error *lsb_release: command not found*. Do this inside the container to install the missing command:
+#+begin_src  shell
+$ apt update
+$ apt install lsb-release
+$ lsb_release -a
+#+end_src
+ [[../img/r.png]]
+
+Great! You now have Ubuntu inside NixOS and now we're going to install some appplication inside it.
+
+/NOTE:When you exit the container created with *docker run -it --rm ubuntu*, it won’t exist anymore because of the *--rm* flag, which automatically removes the container upon exit. This ensures the name is available for reuse. Without *--rm*, the container remains after exiting, and you cannot reuse the name “ubuntu.” again. The idea is that while the container is running with that command, you can save its state using docker commit./
+
+** Install Application Inside Ubuntu.
+
+If you wish to give a names on each of your containers you may now exit:
+#+begin_src  shell
+$ exit
+#+end_src
+
+Then:
+#+begin_src  shell
+$ docker run -it --name nycto-ubuntu --rm -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix --device=/dev/dri:/dev/dri ubuntu bash
+#+end_src
+
+To check the changes:
+#+begin_src  shell
+$ docker ps -a
+#+end_src
+
+You will likely to get a result exactly like this:
+[[../img/t.png]]
+
+As you can see our containers have different names now compare to the former by using the command above. Thank you to /ebzzry/ for cooking this command for me.
+
+Next, Inside the container:
+ #+begin_src  shell
+$ apt update
+$ apt install -y x11-apps
+$ xclock  
+ #+end_src
+
+Expected Error:
+[[../img/q.png]]
+When you received this kind of error, Do this on a separate terminal/NixOS shell:
+#+begin_src  shell
+$ xhost +localhost
+#+end_src
+
+Then run =xclock=, again, in the previous terminal/NixOS shell. The one that’s inside the container.
+ 
+If you don’t have xhost yet inside your NixOS:
+#+begin_src nix shell
+nix profile install nixpkgs#xorg.xhost
+#+end_src
+
+To check if it is already available on your environment:
+#+begin_src  shell
+$ which xhost
+#+end_src
+
+If you received this kind of error:
+[[../img/u.png]]
+
+Do this command to create the root user: 
+#+begin_src  shell
+$ useradd -m <your-user-name>
+$ passwd <your-password>
+$ su - <your-user-name>
+#+end_src
+
+Inside it:
+#+begin_src  shell
+$ sudo -l
+#+end_src
+
+#+begin_src  shell
+$ echo $PATH
+#+end_src
+
+If sudo command is *not found*,  Run this inside the container:
+#+begin_src  shell
+ $ bash
+#+end_src
+
+Inside Bash:
+#+begin_src  shell
+$ which sudo
+#+end_src
+
+If it is still *not found*, Type *exit* command to go back to root. You may exit twice because we have already now *two* shells.
+
+Then on the root execute this command:
+#+begin_src  shell
+$ apt install -y sudo
+#+end_src
+
+Go switch again on the root user:
+#+begin_src  shell
+$ su - <your-user-name>
+#+end_src
+
+Inside the user:
+#+begin_src  shell
+$ which sudo
+#+end_src
+[[../img/d.png]]
+
+Execute this again:
+#+begin_src shell 
+$ sudo -l
+#+end_src
+/NOTE: If you received an error like: /Sorry, user <userame> may not run sudo on <Container ID>/
+
+Go back again on the root and execute this command:
+#+begin_src shell
+$ visudo
+#+end_src
+
+Add this line:
+#+begin_src nix
+<your-user-name> ALL = (ALL:ALL) NOPASSWD: ALL
+#+end_src
+
+/NOTE: if there is an error about—no editor found (editor path /usr/bin/editor)/
+
+Install this:
+#+begin_src shell
+$ apt install -y nano
+#+end_src
+
+When you added the line and already exit the editor:
+#+begin_src  shell
+$  sudo -Hiu <your-user-name>
+#+end_src
+
+Install xclock:
+#+begin_src shell
+$ sudo apt install -y xclock
+#+end_src
+/NOTE: if you received something like this: Package xclock has no installation candidate/. Do the command below.
+
+Install x11-apps:
+#+begin_src shell
+$  sudo apt install -y x11-apps
+#+end_src
+This command installs a collection of X11 applications, which are graphical tools designed for the X Window System. These utilities are useful for testing and running graphical applications.
+
+Then:
+#+begin_src shell
+ $ xclock
+#+end_src
+
+If you have this error, Go to NixOS shell, and execute =xhost +=, then execute =xclock= again inside container.
+[[../img/l.png]]
+
+This is what xclock look like:
+[[../img/x.png]]
+
+This is a GUI app from the guest OS (Ubuntu) connected to the host OS (NixOS). We have already installed an application inside Ubuntu using containers. In the first attempt, especially to the beginner it would take time, but after experimenting with each process, I found that everything could be done in just a matter of minutes. That's why containers are said to be so fast. You can freely experiment with them and install anything you want. 

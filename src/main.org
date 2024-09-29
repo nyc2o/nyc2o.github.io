@@ -1,0 +1,23 @@
+#+title: Constellations of Awakening
+#+author:
+#+language: en
+#+startup: overview
+#+PANDOC_OPTIONS: standalone:t 
+#+options: toc:nil html-postamble:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../css/main.css">
+#+PANDOC_OPTIONS:"epub-cover-image:/home/nycto/github/nyc2o.github.io/img/const.png" standalone:t
+
+[[../img/const.png]]
+ 
+ 
+This passage reflects a personal journey through life and technology. The author aims to inspire others to explore their own paths, awakening to the profound possibilities that lie within their consciousness and beyond.
+
+- [[file:articles/ubuntu.html][How I installed Ubuntu from Windows]]
+- [[file:articles/fiveam.html][CL’s Testing Framework—FiveAM Study Guide]]
+- [[file:articles/nixos.html][How NixOS treated a Novice sysadmin]]
+- [[file:articles/docker.html][Docker Containers Are Too Fast]]
+
+[[file:about.html][About]] 
+Last updated: September 5, 2024
+© 2024 Esoteric Hub
+

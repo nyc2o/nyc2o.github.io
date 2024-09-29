@@ -1,0 +1,144 @@
+#+title: CL’s Testing Framework—FiveAM Study Guide
+#+author: Nycto
+#+language: en
+#+startup: overview
+#+options: toc:nil html-postamble:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../css/nix.css">
+
+
+[[file:../index.html][Home]]   ✾   [[file:../about.html][About]]
+
+* Introduction
+I’ve been working with Common Lisp for about eight months now, and I’ve become curious about how to test my code in this language, similar to how it's done in other languages like *Pytest* for python or *Rspec* for Ruby. The good news is that there are several testing frameworks in Common Lisp, and the one I chose to delve is [[https://github.com/lispci/fiveam][FiveAM]].
+
+* What is FiveAM? 
+*FiveAM* is a mature testing framework designed for [[https://lisp-lang.org/][Common-lisp]]; and it provides a way to test our code systematically; simplifies or scale the program; and be able to prevent bugs. Just as tasting a dish that helps us assess its flavor and quality, using FiveAM also helps us to evaluate and ensure the correctness of our code.
+
+* Let’s get started
+** Pre-requisites
+Obviously, we have to set up first our project and load *FiveAM* via Quicklisp on our Lisp implementations.
+#+begin_src lisp
+  (ql:quickload "cl-project")
+  (ql:quickload "fiveam")
+#+end_src
+
+*  Tree directory
+This should be the tree directory layout or skeleton produced by [[https://github.com/fukamachi/cl-project][cl-project]]. See [[https://lispcookbook.github.io/cl-cookbook/systems.html][this link]] regarding skeleton project generation.
+#+begin_src 
+├── cl-sample.asd
+├── README.markdown
+├── README.org
+├── src
+│   └── main.lisp
+└── tests
+    └── main.lisp
+#+end_src
+
+* ASDF or Another System Definition Facility
+Here what our integration should look like:
+
+#+begin_src lisp
+(defsystem "cl-sample"
+  :version "0.0.0"
+  :author "nycto"
+  :mailto ""
+  :license ""
+  :depends-on ()
+  :components ((:module "src"
+                :components
+                ((:file "main"))))
+  :description ""
+  :in-order-to ((test-op (test-op "cl-sample/tests"))))
+
+(defsystem "cl-sample/tests/main"
+  :author "nycto"
+  :license ""
+  :depends-on ("cl-sample"
+	       "fiveam")
+  :components ((:module "tests"
+                :components
+                ((:file "main"))))
+  :description "Test system for cl-sample"
+  :perform (test-op (op c) (symbol-call :fiveam :run!
+					(find-symbol* :cl-sample :cl-sample/tests/main))))
+
+#+end_src
+
+
+Once everything are already set-up. Make sure the project is on the source registry so we can be able to check the integration via =ASDF or quicklisp=
+
+#+begin_src lisp
+  (ql:quickload "cl-sample")
+  (ql:quickload "cl-sample/tests")
+#+end_src
+
+* Basic checks
+ In the, Tree Section under *~/src*, a *main.lisp* file. We can write there our own experimentation for testing. For example, we could write a function to compute the factorial of =N=. This will allow us to test the function using FiveAM.
+ 
+ #+begin_src lisp
+;;; main.lisp --> our main file 
+
+(defpackage cl-sample
+  (:use :cl)
+  (:export #:fact))
+
+(in-package :cl-sample)
+
+;; bleh bleh bleh.
+(defun fact (n)
+  "Computes the factorial of N."
+  (do ((count 1 (1+ count))
+       (res 1 (* res count)))
+      ((> count n) res)))
+
+#+end_src
+
+In this file, We are going to test our function definition that we exported from the package name— =cl-sample=. For this experimentation, we can obviously see below the basic check. =check=  is the one that checks its argument if it is truthy. The most used check is =is=.
+
+#+begin_src lisp
+;;; main.lisp --> our main test file
+
+(defpackage cl-sample/tests/main
+  (:use :cl
+        :cl-sample
+        :fiveam))
+
+(in-package :cl-sample/tests/main)
+
+;; NOTE: To run this test file, execute—(asdf:test-system :cl-sample) in your SBCL.
+
+;; Root suite
+(def-suite cl-sample
+  :description "Test my cl-sample")
+
+(def-suite test-fact
+  :description "one returns one"
+  :in cl-sample)
+
+(def-suite test-fact1
+  :description "one returns -one"
+  :in cl-sample)
+
+(test test-fact
+  (is (=  1 (fact 1))))
+
+(test test-fact1
+  (is (= -1 (fact 1))))
+
+ #+end_src
+
+ This is how we can execute the test on the SBCL:
+ #+begin_src lisp
+ > (run! 'cl-sample) ;; Run it through the Root Suite, if we want to; or
+ > (run! 'test-fact) ;; Run it through the test. 
+ #+end_src
+ 
+ If you want to run all the test in your test file we can execute it this way:
+ #+begin_src lisp
+ > (5am:run-all-tests)
+ #+end_src
+
+/NOTE: *run!* accepts a name of suite or a test, then prints testing report in pretty output./
+
+
+

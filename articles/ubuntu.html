@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+ <link rel="icon" href="../img/icon.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Nycto" />
+  <title>How I installed Ubuntu from Windows</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" type="text/css" href="../css/nix.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">How I installed Ubuntu from Windows</h1>
+<div class="update">Last updated: September 22, 2024</div>
+<p class="author">Nycto</p>
+<iframe src="https://giphy.com/embed/bfBiFD3UONtJ784iTI" width="300" height="199" style="" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+</header>
+<h1 id="introduction">Introduction</h1>
+<p>I have been using Windows for about 10 years, so switching to a
+different operating system was a brave move for me. I chose <a
+href="https://ubuntu.com/">Ubuntu</a> Linux as my new companion. Ubuntu
+is an open-source operating system based on <a
+href="https://en.wikipedia.org/wiki/Debian">Debian</a>. It is known for
+its user-friendliness, stability, and wide support community. Ubuntu is
+used for both personal and professional purposes and is popular for its
+ease of installation and regular updates.</p>
+<h1 id="go-to-ubuntu-website">Go to <a
+href="https://ubuntu.com/download">Ubuntu</a> website</h1>
+<p>Once you are directed to this site, you will see various OS flavors
+to choose from based on your needs. I selected the Desktop-use option
+and the Ubuntu 23.10 version (Mantic Minotaur), which is the 39th Ubuntu
+release. This is not the Long-Term Support (LTS) version. You can choose
+according to your preferences, but I recommend opting for the LTS
+version instead, as it is generally the most stable and secure.</p>
+<h1 id="create-a-bootable-usb-drive-to-install-bare-metal-linux">Create
+a bootable USB drive to install bare-metal Linux</h1>
+<p>Since I want a bare-metal Linux to run a distribution alone on my
+device; here are the things I did to create a bootable drive using my
+USB device:</p>
+<ul>
+<li><p>Insert <code class="verbatim">USB flash drive</code> on the port,
+make sure that it is clean and must no files.</p></li>
+<li><p>Go and find some application on the internet which makes your USB
+a boothable one. In my option, I used Rufus; Here is the <a
+href="https://rufus.ie/en/">Rufus Website</a> to download the latest
+version of Rufus 4.4.exe in able to create a bootable USB.</p></li>
+<li><p>When the .exe file was downloaded. Open the application and start
+partitioning your .ISO/image file. See a tutorial on the internet about
+how to use your downloaded application.</p></li>
+</ul>
+<p><img src="../img/Rufus.png" /></p>
+<ul>
+<li>Close the app then locate the bootable drive on the disk drives to
+see if it was successful and ready for distro installation.</li>
+</ul>
+<p><img src="../img/Rufus2.png" /></p>
+<h1 id="boot-process-installation">Boot Process &amp; Installation</h1>
+<p>When the bootable USB is ready. Reboot the system and proceed to
+install the Ubuntu Distro.</p>
+<ol>
+<li><p>I pressed <kbd>Shift</kbd> before I reboot my system to access
+the boot manager and chose the bootable device USB which you can see
+along the process. You have to know what key you should hit to access
+the book manager of your machine.</p></li>
+<li><p>You will see installation options; I chose <strong>Install
+Ubuntu</strong>. Here it will look like:</p></li>
+</ol>
+<p><img src="../img/try-or-install.png" /></p>
+<ol>
+<li>When I am on the desktop already, there was a <code
+class="verbatim">Ubuntu installation pop-up</code> and after setting up
+several things, you will see a process for full and default
+installation. I clicked the</li>
+</ol>
+<p><code
+class="verbatim">Full installation of Ubuntu and other options support for additional formats.</code>
+The whole installation process took me one hour to finish due to RST and
+Bitlocker problem. To solve that problem in case you have it, you can
+see on the other section the solution.</p>
+<h1 id="troubleshooting">Troubleshooting</h1>
+<p>Here are my some of my technical issue during Ubuntu installation
+process:</p>
+<h2 id="disable-rst-or-intel-rapid-storage-technology">Disable RST or
+Intel® Rapid Storage Technology</h2>
+<p><img src="../img/rst.png" /></p>
+<p>SOLUTION: On this issue, I restart into Windows again to disable the
+<code class="verbatim">RST</code> on my <code
+class="verbatim">UEFI firmware Settings</code>. After that, I went back
+again to the installation process and it worked.</p>
+<h2 id="bitlocker-is-enabled">Bitlocker is enabled</h2>
+<p><img src="../img/bitlocker.png" /></p>
+<p>SOLUTION: When I continue to install the Ubuntu when I solved the
+last issue, I encountered problem again on the process of erasing all my
+files on disk drive for partitioning. It says that the <code
+class="verbatim">bitlocker is enabled</code>. By that, I went back again
+on Windows to turn off the bitlocker, that took me 30 minutes to decrypt
+the drive to make the installation work for partitioning. I used
+Powershell commands to view if it’s already unlocked. There are
+tutorials on the internet how to decrypt your <code
+class="verbatim">bitlocker on Windows.</code></p>
+<h1 id="appreciation">Appreciation</h1>
+<p><em>Thank you to <a href="https://github.com/ebzzry">Rommel
+Martinez</a> for the corrections.</em></p>
+<footer class="footer">
+      <div class="right">© 2024 Nycto</div>
+  <div class="footer-menu">
+    <a href="../index.html" class="footer-right">Home</a> ✾ 
+    <a href="../about.html" class="footer-right">About</a>
+  </p>
+</footer>
+</body>
+</html>

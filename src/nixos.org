@@ -1,0 +1,241 @@
+#+title: How NixOS treated a Novice sysadmin
+#+author: Nycto
+#+language: en
+#+startup: overview
+#+PANDOC_OPTIONS:"epub-cover-image:/home/nycto/github/nyc2o.github.io/img/error1.png" standalone:t
+#+PANDOC_OPTIONS:"epub-cover-image:/home/nycto/github/nyc2o.github.io/img/lock.png" standalone:t
+#+PANDOC_OPTIONS: standalone:t
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../css/nix.css">
+
+
+[[file:../index.html][Home]]   ✾   [[file:../about.html][About]]
+
+
+* Introduction
+
+For anyone reading this article now, you might be wondering why I chose such a title. Have you ever seen someone who is very skilled in programming but struggles to perform tasks or command on their machine without using a graphical interface? Have you ever realized how important system administration skills are in the field of computer science?
+
+Let’s say for example, *John* is a programmer who lacks sysadmin skills. He has been assigned to a project that is due within a day when he suddenly encounters an error because his project requires a specific library that isn’t available on his machine but he knows he has that library and the only way to fix the issue is to use his terminal.
+
+There are several things that could happen to John: He might not deliver the project to his boss within the day because he is too focused on fixing his library instead of writing code; He could potentially break his entire system due to impatience and negligence; and John might receive a notice that someone will replace him already.
+
+That was my realization after finishing the installation and exploring everything inside of NixOS, which requires a thorough understanding and bond with your machine. In several sections, I will show you how I manually executed the switch from Ubuntu to [[https://nixos.org/][NixOS]].
+
+* NixOS—A built different Linux distro
+
+I have been using [[https://ubuntu.com/][Ubuntu]] Linux distribution with a span of 8 months and someone introduced me to another distribution called *NixOS*, so I thought I would give it a brave transition. He said that it is *declarative*, meaning that the entire system state can be define in a single =.nix= file; and *reproducible*, meaning  you can replicate the exact same system configuration and environment on multiple machines or at different times. I don’t know  Nix best hacks yet and I am still learning everything through their [[https://nixos.org/learn/][NixOS manual]]. 
+
+* Preparation
+Here are my guide setup from [[https://ebzzry.com/en/nix/#nixpaths][Rommel Martinez]]:
+
+ - [[https://en.wikipedia.org/wiki/UEFI][UEFI]]
+ - USB boothable device
+ - Wi-Fi connection
+ - [[https://en.wikipedia.org/wiki/GUID_Partition_Table][GUID partition table or GPT]]
+ - [[https://en.wikipedia.org/wiki/Linux_Unified_Key_Setup][LUKS]] over [[https://en.wikipedia.org/wiki/Logical_volume_management][LVM]]
+
+*NOTE:* /Read before you act./
+* ISO image
+The first thing is to have the installer on this link: [[https://nixos.org/download/][nixos.org/download]].
+
+* USB
+I used [[https://rufus.ie/en/][Rufus]] to make the USB drive a boothable one. During the process of creating a bootable USB with your ISO image, you have to make sure what *boot firmware* you have in your system. When choosing the partition scheme and target system type:
+
+** For UEFI:
+Under “Partition scheme,” select “GPT” and under “Target system,” select “UEFI (non-CSM).”
+** For BIOS:
+Under “Partition scheme,” select “MBR” and under “Target system,” select “BIOS or UEFI”.
+
+* Execution 
+Once the bootable device is ready, reboot the system in able to boot into the NixOS installer. If you installed an ISO that supports grahical interface you can open a terminal inside it and you will be logged in automatically as *root*. 
+
+** To list an available network:
+#+begin_src
+  # nmcli d wifi list
+#+end_src
+** To connect through your router:
+#+begin_src 
+  # nmcli d wifi connect [router_name] password [router_password]
+#+end_src
+
+*Note:* /Inside of “[ ]” represents your router’s name and password, do not use “[” or “]” during the execution./
+
+** Manually create the partitions:
+
+#+begin_src
+ # gdisk /dev/nvme0n1
+ #+end_src
+*Note:* /You should know what drive you are going to use in creating the partitions. You can use command like =lsblk= in able to display block devices such as hard drives, solid-state drives, and other storage-related devices.  During my installation I got confused what I am going to use. Instead understanding what it is, I continuously executing their used commands so please remember there are parts here that you have to replace./
+ 
+Here what you can do inside =gdisk=, it is a command on Linux to create, manage, and delete standard partitions.
+
+ #+begin_src 
+ # gdisk /dev/nvme0n 1  #GPT partitioning 
+    > ?       # list all commands
+    > p      # list all partitions
+    > d      # delete a partition
+
+    > o        # create a new empty GPT partition table
+        > Y    # validate new empty GPT (⚠️ delete all pre-existing partitions)
+
+    > n # create a new partition (boot partition)
+        > RET   # enter to leave default part number (1 for nvme0n1p1)
+        > RET    # enter to leave default first sector
+        > +512Mib  # specify a 512Mo partition size
+        > EF00  # specify an EFI System boot partition type
+
+    > n # create new partition (optional swap)
+        > RET    # enter to leave default part number (2 for nvme0n1p2)
+        > RET    # enter to leave default first sector
+        > RET    # enter for the rest of a partition size
+        > 8E00  # specify a Linux LVM
+
+
+    > p  # print the table to ensure that it is correct
+
+    > w  # write the table, validate all previous actions and quit
+        > Y  # validate new table
+#+end_src
+*NOTE:* /this commands will essentially wiping your disk so triple check what drive you are actually using in modifying the partitions./
+
+** Format /dev/nvme0n1p1 into FAT32 file system.
+  #+begin_src
+  # mkfs.vfat -F 32 /dev/nvme0n1p1   
+  #+end_src 
+** Create physical volume:
+#+begin_src
+ # pvcreate /dev/nvme0n1p2
+#+end_src
+** Create volume group:
+#+begin_src
+#  vgcreate  vg /dev/nvme0n1p2
+#+end_src
+** Create logical volumes:
+#+begin_src
+  # lvcreate -L 20G -n swap vg
+  # lvcreate -l 100%FREE -n root vg
+#+end_src
+** After the creation of volumes, It's time to encrypt the root:
+ #+begin_src
+# cryptsetup luksFormat /dev/vg/root
+# cryptsetup luksOpen /dev/vg/root root
+ #+end_src
+** Format root:
+#+begin_src
+# mkfs.ext4 -j -L root /dev/mapper/root
+#+end_src
+** Format swap:
+#+begin_src
+  # mkswap -L swap /dev/vg/swap
+#+end_src
+** Mount the filesystems:
+#+begin_src
+# mount /dev/mapper/root /mnt
+# mkdir /mnt/boot
+# mount /dev/nvme0n1p1 /mnt/boot
+#+end_src
+** Enable swap:
+#+begin_src
+# swapon /dev/vg/swap
+#+end_src
+
+As you can see above, Basically I manually created GPT partitions, volumes, and encrypted my disk. Now, this is the time to install the NixOS on the top of it.
+
+** Create the base configuration:
+ #+begin_src
+  # nixos-generate-config --root /mnt
+ #+end_src
+** Edit the configuration file:
+ You may see this [[https://ebzzry.com/en/nix/#nixpaths][link]] under the =install to disk= of *ebzzry's* article—[[https://ebzzry.com/en/nix/#nixpaths][A Gentle Introduction to the Nix Family]] because I followed his own configuration for my first crack of NixOS system environment. Remember, there are parts there that you have to replace. To save the edited configuration file, just pressed @@html:<kbd>@@Ctrl@@html:</kbd>@@ + o and then press RET to save the file. If you wish to leave to the editor, press @@html:<kbd>@@Ctrl@@html:</kbd>@@ + x.
+
+** Install NixOS 
+#+begin_src
+  # nixos-install
+#+end_src
+
+ If there are errors, you can be able to go back on the configuration file and edit it again. Otherwise, *reboot* the system.
+
+ #+begin_src
+   # reboot
+ #+end_src
+ 
+The next several section will be the behind the scene errors and how I overcome them during my installation process and how I restore everything I need inside NixOS.
+
+* Faced Issues:
+These are the errors I experienced during the installation of NixOS.
+** Hardware-configurations and configuration.nix has conflicts
+[[../img/error1.png]]
+
+*Solution:*
+#+begin_src nix
+  
+    fileSystems = {
+    "/boot" = {
+      device = "/dev/disk/by-uuid/my_blkid";
+      fsType = "vfat";
+    };
+    "/" = lib.mkForce {
+      device = "/dev/mapper/root";
+      fsType = "ext4";
+    };
+  };
+#+end_src
+
+ *lib.mkForce* function ensures that the root filesystem configuration *("/")* is applied even if other configurations might conflict or override it. This is particularly useful in situations where the root filesystem configuration needs to be explicitly set and maintained despite of any other potential conflicts.
+ 
+** Root account is locked.
+ [[../img/lock.png]
+
+While I was already inside NixOS, I accidentally deleted an important directory in my *root* account due to bad assumption. You might be wondering how I resolved this. Yes, I came back from scratch because I can't use a terminal on the live environment because my root account is locked, So I need to go on the live installation again when my boothable USB was already corrupted that time and I don't have an extra one. /Do you know now why article title is like that?./
+
+* Installing Nix Packages
+NixOS has a collection of packages called *Nixpkgs*. The [[https://search.nixos.org/packages][collection]] contains over 100,000 software packages that can be installed with the Nix package manager. Some users have their own package management, The first basic packagement I used is *nix-env* this command is used to manage Nix user environments. Click [[https://nix.dev/manual/nix/2.18/command-ref/nix-env][To know more about nix-env]].
+
+** My channels
+When I am already restoring everything I need, I use channel to install them rather than using Git checkout. It is much more convenient, and the commands are too easy to execute. Channels are URLs that point to repositories. By subscribing to a channel, you can get access to the packages.
+
+The *nixos-unstable* and *nixpkgs-unstable* channels serve different purposes. If you use nixos-unstable, you’ll get the latest updates to the core NixOS system. It's great for staying on the cutting edge of NixOS features. On the other hand, nixpkgs-unstable provides the latest versions of software packages, libraries, and tools, so you can access the newest applications and updates without waiting for the stable release.
+
+*To add a channel:*
+#+begin_src nix
+  nix-channel --add https://nixos.org/channel/nixos-unstable nixos
+  nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs
+  #+end_src
+
+*To list the channels:*
+#+begin_src nix
+  # nix-channel --list
+  nixos https://nixos.org/channels/nixos-unstable
+  nixpkgs https://nixos.org/channels/nixpkgs-unstable
+#+end_src
+
+** nix-env
+To install a package:
+#+begin_src nix
+# nix-env -iA nixpkgs.my_desired_package
+#+end_Src
+
+To list the packages:
+#+begin_src nix
+# nix-env -q
+#+end_src
+
+* Nix commands
+In my current user environment I am using a *nix commands* to install such packages.
+
+*To install a package:*
+#+begin_src nix
+# nix profile install nixpkgs#my_desired_package
+#+end_src
+
+*To locate or search packages:*
+#+begin_src nix
+#  nix-locate desired_package
+#  nix search nixpkgs  desired_package
+#+end_src
+
+Those two commands will give you the name of the package that you need.
+
+* Appreciation
+ If you wish to know more about introduction of Nix Family you may go on this article—[[https://ebzzry.com/en/nix/#nixpaths][A Gentle Introduction to the Nix Family]] by [[https://ebzzry.com/eo/][ebzzry]]. Without his support, I won’t have my NixOS on my machine. Thanks to my cousin [[https://www.facebook.com/jasther25][Jasther]] who let me use his computer to gather information about NixOS, and [[https://www.facebook.com/rojieliamliezl][Roj]] who helped me to revive my corrupted boothable USB using *Hiren's BootCD* because of my negligence.
+ 

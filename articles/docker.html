@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+ <link rel="icon" href="../img/icon.png" type="image/png">
+  <meta name="author" content="Nycto" />
+  <title>Docker Containers Are Too Fast</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" type="text/css" href="../css/nix.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Docker Containers Are Too Fast</h1>
+<div class="update">Last updated: September 22, 2024</div>
+<p class="author">Nycto</p>
+<iframe src="https://giphy.com/embed/LCjeC33hqL5iuhCSjj" width="300" height="190" style="" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+</header>
+<h1 id="introduction">Introduction</h1>
+<p>Hello there! From the last article, I mentioned NixOS, right? My
+machine fully supports NixOS, and my experiences so far have exceeded my
+expectations. There was a time when I needed to install an application
+in my NixOS environment and forgot that NixOS uses Nix to install
+packages, meaning only software from Nixpkgs is installable. So, what’s
+one elegant way to install software applications outside of Nixpkgs? and
+that would be using <a href="https://www.docker.com">Docker</a>. I don’t
+have any experience with Docker so far and <a
+href="https://github.com/ebzzry">ebzzry</a> taught me the basics and
+techniques on how to use it, and I think delving it along the way is a
+good choice as part of your toolset as a developer.</p>
+<h1 id="docker">Docker</h1>
+<p>Docker primarily runs through the command line interface (CLI), which
+is where you will find the most flexibility and control for managing
+containers—which allows to start quickly and use system resources more
+efficiently than traditional virtual machines. However, there are also
+graphical user interface (GUI) tools available that can help you manage
+Docker containers more easily, such as: Docker Desktop, Portainer and
+etc. depending on your needs. For me, I prefer to use it through my
+NixOS shell environment.</p>
+<h1 id="installation">Installation</h1>
+<p>For NixOS users, I installed my Docker by adding this snippet through
+my NixOS configuration:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode nix"><code class="sourceCode nix"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>virtualisation.docker.enable = <span class="cn">true</span>;</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a> users = <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a> <span class="va">extraUsers</span>.<span class="va">specify-your-username</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>   <span class="va">isNormalUser</span> <span class="op">=</span> <span class="cn">true</span><span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>   <span class="va">uid</span> <span class="op">=</span> <span class="dv">1000</span><span class="op">;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>   <span class="va">extraGroups</span> <span class="op">=</span> <span class="op">[</span> <span class="st">&quot;docker&quot;</span> <span class="op">];</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a> <span class="op">};</span></span></code></pre></div>
+<p>Don’t forget to save it once you already declare everything in your
+configuration then reboot your machine to take an effect:</p>
+<pre class="shell"><code>$ reboot
+</code></pre>
+<p>After rebooting your machine, run your NixOS shell to ensure if
+Docker is already installed in your user environment by executing this
+commands:</p>
+<pre class="shell"><code>$ docker info
+$ docker ps
+</code></pre>
+<h1 id="usage">Usage</h1>
+<h2 id="install-ubuntu">Install Ubuntu</h2>
+<p>On this section we will be using Docker to install Ubuntu inside
+Docker containers—inside the NixOS. Fun right?</p>
+<p>First, use the <strong>NixOS shell</strong> to install the latest
+Ubuntu Image:</p>
+<pre class="shell"><code>$ docker pull Ubuntu
+</code></pre>
+<p>Second, make a directory on your <strong>$HOME</strong>, we can name
+the directory as <em>docker-shell</em> and make it separated to the
+NixOS shell. Meaning we have 1) <strong>NixOS shell</strong> and 2)
+<strong>Docker shell</strong> for this operation.</p>
+<p>Inside the directory—*docker-shell*:</p>
+<pre class="shell"><code>$ touch shell.nix
+$ nano shell.nix
+</code></pre>
+<p>When editing the development environment configuration of our Docker
+shell, you may use this snippet:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode nix"><code class="sourceCode nix"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">{</span> <span class="va">pkgs</span> <span class="op">?</span> <span class="bu">import</span> &lt;nixpkgs&gt; <span class="op">{}</span> <span class="op">}</span>:</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>   pkgs.mkShell <span class="op">{</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">nativeBuildInputs</span> <span class="op">=</span> <span class="kw">with</span> pkgs.buildPackages<span class="op">;</span> <span class="op">[</span> docker <span class="op">];</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a> <span class="op">}</span></span></code></pre></div>
+<p>Then just run:</p>
+<pre class="shell"><code>$  nix-shell
+</code></pre>
+<p>Use <strong>Docker shell</strong> and perform the commands
+respectively. The former is to list images so we can be able to know if
+Ubuntu Image exist or successfully installed. Lastly, is to show if you
+have any containers running:</p>
+<pre class="shell"><code>$ docker images  -a
+$ docker ps -a
+</code></pre>
+<p>In NixOS shell:</p>
+<pre class="shell"><code>$ docker exec -it ubuntu bash
+</code></pre>
+<p><em>NOTE: <strong>docker exec</strong> is for running commands
+directly inside the container, then it presents a shell for you to
+interact with. If this command doesn’t work on your end and received an
+error perform the next command below</em></p>
+<pre class="shell"><code>$ docker run -it --rm ubuntu
+</code></pre>
+<p><img src="../img/v.png" /></p>
+<p>Inside the container:</p>
+<pre class="shell"><code>$ lsb_release -a
+</code></pre>
+<p>/NOTE: If you received an error <strong>lsb<sub>release</sub>:
+command not found</strong>. Do this inside the container to install the
+missing command:</p>
+<pre class="shell"><code>$ apt update
+$ apt install lsb-release
+$ lsb_release -a
+</code></pre>
+<p><img src="../img/r.png" /></p>
+<p>Great! You now have Ubuntu inside NixOS and now we’re going to
+install some appplication inside it.</p>
+<p><em>NOTE:When you exit the container created with <strong>docker run
+-it –rm ubuntu</strong>, it won’t exist anymore because of the
+<strong>–rm</strong> flag, which automatically removes the container
+upon exit. This ensures the name is available for reuse. Without
+<strong>–rm</strong>, the container remains after exiting, and you
+cannot reuse the name “ubuntu.” again. The idea is that while the
+container is running with that command, you can save its state using
+docker commit.</em></p>
+<h2 id="install-application-inside-ubuntu.">Install Application Inside
+Ubuntu.</h2>
+<p>If you wish to give a names on each of your containers you may now
+exit:</p>
+<pre class="shell"><code>$ exit
+</code></pre>
+<p>Then:</p>
+<pre class="shell"><code>$ docker run -it --name nycto-ubuntu --rm -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix --device=/dev/dri:/dev/dri ubuntu bash
+</code></pre>
+<p>To check the changes:</p>
+<pre class="shell"><code>$ docker ps -a
+</code></pre>
+<p>You will likely to get a result exactly like this: <img
+src="../img/t.png" /></p>
+<p>As you can see our containers have different names now compare to the
+former by using the command above. Thank you to <em>ebzzry</em> for
+cooking this command for me.</p>
+<p>Next, Inside the container:</p>
+<pre class="shell"><code>$ apt update
+$ apt install -y x11-apps
+$ xclock  
+</code></pre>
+<p>Expected Error: <img src="../img/q.png" /> When you received this
+kind of error, Do this on a separate terminal/NixOS shell:</p>
+<pre class="shell"><code>$ xhost +localhost
+</code></pre>
+<p>Then run <code class="verbatim">xclock</code>, again, in the previous
+terminal/NixOS shell. The one that’s inside the container.</p>
+<p>If you don’t have xhost yet inside your NixOS:</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode nix"><code class="sourceCode nix"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>nix profile install nixpkgs<span class="co">#xorg.xhost</span></span></code></pre></div>
+<p>To check if it is already available on your environment:</p>
+<pre class="shell"><code>$ which xhost
+</code></pre>
+<p>If you received this kind of error: <img src="../img/u.png" /></p>
+<p>Do this command to create the root user:</p>
+<pre class="shell"><code>$ useradd -m &lt;your-user-name&gt;
+$ passwd &lt;your-password&gt;
+$ su - &lt;your-user-name&gt;
+</code></pre>
+<p>Inside it:</p>
+<pre class="shell"><code>$ sudo -l
+</code></pre>
+<pre class="shell"><code>$ echo $PATH
+</code></pre>
+<p>If sudo command is <strong>not found</strong>, Run this inside the
+container:</p>
+<pre class="shell"><code>$ bash
+</code></pre>
+<p>Inside Bash:</p>
+<pre class="shell"><code>$ which sudo
+</code></pre>
+<p>If it is still <strong>not found</strong>, Type <strong>exit</strong>
+command to go back to root. You may exit twice because we have already
+now <strong>two</strong> shells.</p>
+<p>Then on the root execute this command:</p>
+<pre class="shell"><code>$ apt install -y sudo
+</code></pre>
+<p>Go switch again on the root user:</p>
+<pre class="shell"><code>$ su - &lt;your-user-name&gt;
+</code></pre>
+<p>Inside the user:</p>
+<pre class="shell"><code>$ which sudo
+</code></pre>
+<p><img src="../img/d.png" /></p>
+<p>Execute this again:</p>
+<pre class="shell"><code>$ sudo -l
+</code></pre>
+<p>/NOTE: If you received an error like: <em>Sorry, user &lt;userame&gt;
+may not run sudo on &lt;Container ID&gt;</em></p>
+<p>Go back again on the root and execute this command:</p>
+<pre class="shell"><code>$ visudo
+</code></pre>
+<p>Add this line:</p>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode nix"><code class="sourceCode nix"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>&lt;your<span class="op">-</span>user<span class="op">-</span>name&gt; ALL = <span class="op">(</span><span class="va">ALL</span><span class="op">:</span>ALL<span class="op">)</span> <span class="va">NOPASSWD</span><span class="op">:</span> ALL</span></code></pre></div>
+<p>/NOTE: if there is an error about—no editor found (editor path
+<em>usr/bin/editor)</em></p>
+<p>Install this:</p>
+<pre class="shell"><code>$ apt install -y nano
+</code></pre>
+<p>When you added the line and already exit the editor:</p>
+<pre class="shell"><code>$  sudo -Hiu &lt;your-user-name&gt;
+</code></pre>
+<p>Install xclock:</p>
+<pre class="shell"><code>$ sudo apt install -y xclock
+</code></pre>
+<p><em>NOTE: if you received something like this: Package xclock has no
+installation candidate</em>. Do the command below.</p>
+<p>Install x11-apps:</p>
+<pre class="shell"><code>$  sudo apt install -y x11-apps
+</code></pre>
+<p>This command installs a collection of X11 applications, which are
+graphical tools designed for the X Window System. These utilities are
+useful for testing and running graphical applications.</p>
+<p>Then:</p>
+<pre class="shell"><code>$ xclock
+</code></pre>
+<p>If you have this error, Go to NixOS shell, and execute <code
+class="verbatim">xhost +</code>, then execute <code
+class="verbatim">xclock</code> again inside container. <img
+src="../img/l.png" /></p>
+<p>This is what xclock look like: <img src="../img/x.png" /></p>
+<p>This is a GUI app from the guest OS (Ubuntu) connected to the host OS
+(NixOS). We have already installed an application inside Ubuntu using
+containers. In the first attempt, especially to the beginner it would
+take time, but after experimenting with each process, I found that
+everything could be done in just a matter of minutes. That’s why
+containers are said to be so fast. You can freely experiment with them
+and install anything you want.</p>
+<footer class="footer">
+      <div class="right">© 2024 Nycto</div>
+  <div class="footer-menu">
+    <a href="../index.html" class="footer-right">Home</a> ✾ 
+    <a href="../about.html" class="footer-right">About</a>
+  </p>
+</footer>
+</body>
+</html>
