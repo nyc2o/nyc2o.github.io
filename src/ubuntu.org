@@ -1,5 +1,5 @@
-#+title: How I installed Ubuntu from Windows
-#+author: Nycto
+#+title: How I installed Ubuntu From Windows
+#+author: 
 #+language: en
 #+startup: overview
 #+PANDOC_OPTIONS:"epub-cover-image:/home/nycto/github/nyc2o.github.io/img/Rufus.png" standalone:t

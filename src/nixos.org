@@ -1,5 +1,5 @@
-#+title: How NixOS treated a Novice sysadmin
-#+author: Nycto
+#+title: How NixOS Treated a Novice Sysadmin
+#+author:
 #+language: en
 #+startup: overview
 #+PANDOC_OPTIONS:"epub-cover-image:/home/nycto/github/nyc2o.github.io/img/error1.png" standalone:t

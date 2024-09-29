@@ -1,5 +1,5 @@
-#+title: CL’s Testing Framework—FiveAM Study Guide
-#+author: Nycto
+#+title: Testing a Testing Framework
+#+author: 
 #+language: en
 #+startup: overview
 #+options: toc:nil html-postamble:nil

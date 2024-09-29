@@ -1,6 +1,5 @@
-
 #+title: About
-#+author: Nycto
+#+author: 
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../css/nix.css">
 #+language: en
 #+PANDOC_OPTIONS: standalone:t 

@@ -1,5 +1,5 @@
-#+title: Docker Containers Are Too Fast
-#+author: Nycto
+#+title: Docker Containers Are Fast
+#+author:
 #+language: en
 #+startup: overview
 #+PANDOC_OPTIONS:"epub-cover-image:/home/nycto/github/nyc2o.github.io/img/v.png" standalone:t
