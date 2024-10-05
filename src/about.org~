@@ -9,13 +9,16 @@
 [[file:../index.html][Home]]
 
 * Bit of me
-Adrian Villareal holds a *Bachelor’s degree in Computer Science*, specializing in Data Science from *Adamson University* in the Philippines. He is currently an intern at [[https://valmiz.com][Valmiz, Inc]]. After he graduated, he decided to switch to the vast field of Artificial Intelligence. With a passion for innovation, Adrian is focusing into a diverse skill set such as system administration, web development and =Lisp programming—the second-oldest high-level programming language= still in use after Fortran. He believes that the true mark of greatness is not only found in the achievement or accolades one gathers, but also in how they manage the responsibilities that come with that success.
+Adrian Villareal has a *Bachelor’s degree in Computer Science* with a specialization in Data Science from *Adamson University* in the Philippines. He is currently an intern at [[https://valmiz.com][Valmiz, Inc]]. After he graduated, he realized he was no longer interested in pursuing Data Science; instead, he decided to switch to the field of Artificial Intelligence. At this time, he is a /padawan/ who is eager and perseverant in learning various skills, including =Common Lisp—the second-oldest= *high-level programming language* still in use after Fortran. He believes that accomplishing great things, must not only act but also dream.
+
 * About This Site
 This repository will contain articles and future projects.
+
 * Contact
 - Twitter: [[https://x.com/nycto_ida][@nycto_ ida]]
 - GitHub: [[https://github.com/nyc2o][nyc2o]]
 - LinkedIn: [[https://www.linkedin.com/in/michael-adrian-villareal-9885a9202/][Michael Adrian Villareal]]
+ 
 * Colophon
 This website is built with /[[https://www.gnu.org/software/emacs/][Emacs]]/, /[[https://github.com/kawabata/ox-pandoc][Ox-pandoc]],/ /[[https://jekyllrb.com/docs/github-pages/][Jekyll]]/ and /[[https://orgmode.org/][Org]]./ Hosting provider; /[[https://pages.github.com/][Github Pages]]./
 
