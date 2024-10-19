@@ -1,0 +1,232 @@
+#+title: Exploring Parsing in S-expression. 
+#+author:
+#+language: en
+#+startup: overview
+#+PANDOC_OPTIONS: standalone:t
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../css/nix.css">
+
+[[file:../index.html][Home]]   ✾   [[file:../about.html][About]]
+
+* Introduction
+Parsing is a technique where we use to analyze and understand the structure of a text or code in order to extract meaningful information. This process involves breaking down complex data structures or programming languages into simpler, more digestible parts, making them easier to analyze. Parsing finds applications in a variety of fields, such as natural language processing, compilers, and data analysis tools.
+
+For example, when writing code in a programming language, it must be converted into a format that a computer can process and execute. This involves parsing the code to identify its various components—like variables, functions, statement and etc. By breaking the code down, parsing helps the computer understand the syntax and structure of the programming language, enabling it to run the instructions accurately.
+
+Another one is Data parsing, it refers to the process of analyzing a structured format to extract information, and when it comes to JSON (JavaScript Object Notation), this involves interpreting the data represented in a JSON format. JSON is widely used for transmitting data between a server and a web application because of its lightweight and easy-to-read structure. You are going to see an example of parsing functions later on our simple parser JSON implementation and but before that you can read the documentation here: [[https://mr.gy/software/maxpc/api.html#section-1][MaxPC Documentation]].
+
+* MaxPC
+The first parser library I am currently using is [[https://github.com/eugeneia/maxpc][MaxPC]]—a non-complex system where you can write your custom parsing program based on S-expression, that is capable for parse tree transformation, error handling and can operate on sequence and streams. It has five types of parsing functions called Basic parsers, Logical Combinators, Sequence Combinators, Transformation and Error handling. MaxPC also have—Caveat: Recursive Parsers which we are not going to include on this topic.
+
+* Let's get started
++ To install the MaxPC library, it is avalaible on Quicklisp, If you are using Emacs and SBCL you can open your SLIME to execute this:
+#+begin_src lisp
+  (ql:quickload :maxpc)
+#+end_src
+
++ Create a package namespace and include the MaxPC on the package:
+#+begin_src lisp
+   (defpackage :parsing-playground
+     (:use :cl :maxpc))
+
+   (in-package :parsing-playground)
+#+end_src
+
++ To check if the library is working on the environment we can be able to try some basic parsers on our SBCL:
+#+begin_src lisp
+  parsing-playground > (parse '(foo) (=element)) → FOO, T, T
+  parsing-playground > (parse '(x) (?eq 'y)) ⇒ NIL, NIL, NIL
+#+end_src
+
+For us to determine the result that is based on generalized boolean, this is the parser template:
+#+begin_src lisp
+  (function (input) (or input null) * boolean)
+#+end_src
+
++ In the former basic parser, we use:
+     * *Function:* parse
+     * *Input-source:* '(foo)
+     * *Parser:* (=element)
+     * *Result:* FOO
+     * *Match-p:* T
+     * *End-p:* T
+    
+/NOTE: Generalized boolean: Match‑p is true if the parser got matched into the input-source. End‑p is true if parser got matched into the complete input-source./
+
+* Lexical convention:
+Always remember that parser which names starts with a/an:  
+  * Question mark (?) will never produce a result value.
+  #+begin_src lisp
+  (parse '(x) (?eq 'y)) → NIL, NIL, NIL
+  #+end_src 
+  * Equals sign (=) will always produce a result value.
+  #+begin_Src lisp
+  (parse '(foo) (=element)) → FOO, T, T
+  #+end_src
+  * Percent symbol (%) may produce a result value depending on their arguments.
+  #+begin_src lisp
+  (parse '(z) (%maybe (=element))) → Z, T, T
+  (parse '() (%any (=element))) → NIL, T, T
+  #+end_src
+  
+* Parsing a JSON file. 
+Now that you've explored the capabilities of MaxPC, let’s apply it to a real example—creating a custom parser for a JSON-like object that decodes string keys and simple values (both strings and numbers). This parser will handle only a single data entry, rather than multiple entries.
+
+=Example .JSON file:=
+#+begin_example 
+ {
+     "Name": "Alice",
+     "Age": "30"
+ }
+#+end_example
+
+*For our utilities:*
+#+begin_src lisp
+(defun ?whitespace ()
+  "Match zero or more whitespace character input."
+  (?seq (%any (maxpc.char:?whitespace))))
+
+(defun ?digit-p ()
+  "Match to check the elements is a digit character."
+  (?seq (%some (?satisfies 'digit-char-p))))
+#+end_src
+It’s important to note that expressions are read from left to right. In the =?whitespace function, the ?seq function—matches parsers in sequence, while %any—matches parsers in a variable number of times.
+
+Similarly, in the =?digit-p function, %some—is used to match parsers one or more times, and ?satisfies— checks if the input meets the criteria defined by the symbol digit-char-p.
+
+*Result:*
+#+begin_src lisp
+  (parse '(#\ ) (?whitespace)) → NIL, T, T
+  (parse "30" (?digitp)) → NIL, T, T
+  (parse "30 a b" (?digit-p)) → NIL T NIL
+  (parse '(#\3 #\a) (?digit-p))  → NIL T NIL
+  (parse '(#\3 #\0) (?digit-p)) →  NIL, T, T
+#+end_src 
+
+
+*For matching the name and name's value:*
+#+begin_src lisp
+  (defun =key ()
+    "Returns a key string."
+    (=destructure (_ str &rest _)
+                  (=list (?eq #\")
+                         (=subseq (%some (?satisfies 'alphanumericp)))
+                         (?eq #\")
+                         (?seq (?eq #\:)))
+      str))
+
+  (defun =value ()
+  "Return a value string."
+  (=destructure (_ str &rest _)
+		(=list (?eq #\")
+		       (=subseq (%some (?satisfies (lambda (c) (not (eq c #\"))))))
+		       (?eq #\")
+		       (?seq (?eq #\,)))
+    str))
+              
+#+end_src
+
+As you can see, the two functions break down the data into components to match entries like =\"name\":"= and =\"alice\","=. If you're familiar with destructuring-bind, this process becomes easier. The underscore (_) is used to ignore the result values, allowing us to omit the backslashes and colons from the results.
+
+*Result:*
+#+begin_src lisp
+  (parse "\"name\":" (=key))  → "name", T, T
+  (parse "\"alice\"," (=value))  → "alice", T, T
+#+end_src
+
+*For matching the age's value:*
+#+begin_src lisp
+
+(defun =age-value ()
+ "Return a digit."
+  (=destructure (_ age _)
+		(=list (?eq #\")
+		       (=subseq (?digit-p))
+		       (?eq #\"))
+    age))
+#+end_src
+
+This function will only accept digits as input and will utilize the *=key* function again.
+
+*Result:*
+#+begin_src lisp
+  (parse "\"age\":" (=key))
+  (parse "\"30\"" (=age-value))
+#+end_src
+
+*Return the name and name's value; age and age's value:*
+#+begin_src lisp
+  (defun =key-value ()
+  "Matches a key-value pair."
+  (=destructure (key1 _ value1 _ key2 _ value2)
+                (=list (=key)
+                       (?whitespace)
+                       (=value)
+                       (?whitespace)
+                       (=key)
+                       (?whitespace)
+                       (=age-value))
+    (list key1 value1 key2 value2)))   
+#+end_src
+
+This function matches and returns two items without brackets. It uses =list to sequence the parsers and generate a list as shown below.
+
+*Result:*
+#+begin_src lisp
+(parse  "\"name\": \"nycto\", \"age\": \"22\"" (=key-value))
+→("name" "nycto" "age" "22"), T, T
+#+end_src
+
+*Top level to parse the entire object:*
+#+begin_src lisp
+(defun =parse-json ()
+  "Matches a JSON object."
+  (=destructure (_ _ result &rest _)  
+		(=list (?eq #\{)
+		       (?whitespace)
+		       (%some (=key-value))
+		       (?whitespace)
+		       (?eq #\})
+		       (?whitespace))
+    (apply #'append result))) ;;To flatten the nested-lists.
+
+(defun parse-file (items)
+  (parse items (=parse-json)))
+
+(defun read-json-file (filename)
+  "Read the contents of a JSON file and return it as a string."
+  (with-open-file (stream filename)
+    (let ((content (make-string (file-length stream))))
+      (read-sequence content stream)
+      content)))
+
+(defun parse-json-file (filename)
+  "Read a JSON file and return the parsed object."
+  (let ((json-string (read-json-file filename)))
+    (parse-file json-string)))
+#+end_src
+
+The *=parse-json* function matches the structure of a JSON object by using pattern matching to identify an opening brace, whitespace, key-value pairs, and a closing brace and flattens them into a single list. The *parse-file* function serves as a wrapper that applies the =parse-json parser to a given input. The *read-json-file* function reads the contents of a specified JSON file into a string. Finally, the *parse-json- file* function combines file reading and parsing, first fetching the JSON string from the file and then applying the parsing function.
+
+*Result:*
+#+begin_src lisp
+  (parse {
+         \"name\": \"nycto\",
+         \"age\": \"22\" 
+         }
+         (=parse-json))
+  → ("name" "nycto" "age" "22"),T, T
+#+end_src
+
+#+begin_src lisp
+  (read-json-file "your-specified-path/example.json")
+  → "{
+        \"name\": \"nycto\",
+        \"age\": \"22\" 
+    }
+#+end_src
+
+
+#+begin_src lisp
+  (parse-json-file "your-specified-path/example.json")
+  → ("name" "nycto" "age" "22"),T, T
+#+end_src

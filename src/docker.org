@@ -90,7 +90,7 @@ $ docker exec -it ubuntu bash
 #+begin_src  shell
 $ docker run -it --rm ubuntu
 #+end_src
- [[../img/v.png]]
+[[../img/v.png]]
 
 Inside the container:
 #+begin_src  shell

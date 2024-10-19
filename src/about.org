@@ -8,6 +8,7 @@
 
 [[file:../index.html][Home]]
 
+
 * Bit of me
 Adrian Villareal holds a *Bachelor’s degree in Computer Science*, specializing in Data Science from *Adamson University* in the Philippines. He is currently an intern at [[https://valmiz.com][Valmiz, Inc]]. After he graduated, he decided to switch to the vast field of Artificial Intelligence. With a passion for innovation, Adrian is focusing into a diverse skill set such as system administration, web development and =Lisp programming—the second-oldest high-level programming language= still in use after Fortran. He believes that the true mark of greatness is not only found in the achievement or accolades one gathers, but also in how they manage the responsibilities that come with that success.
 * About This Site
