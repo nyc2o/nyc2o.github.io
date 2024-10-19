@@ -278,8 +278,8 @@ href="https://github.com/eugeneia/maxpc">MaxPC</a>—a non-complex system
 where you can write your custom parsing program based on S-expression,
 that is capable for parse tree transformation, error handling and can
 operate on sequence and streams. It has five types of parsing functions
-called Basic parsers, Logical Combinators, Sequence Combinators,
-Transformation and Error handling. MaxPC also have—Caveat: Recursive
+called basic parsers, logical combinators, sequence combinators,
+transformation and error handling. MaxPC also have—Caveat: Recursive
 Parsers which we are not going to include on this topic.</p>
 <h1 id="lets-get-started">Let's get started</h1>
 <ul>
@@ -287,13 +287,13 @@ Parsers which we are not going to include on this topic.</p>
 are using Emacs and SBCL you can open your SLIME to execute this:</li>
 </ul>
 <div class="" id="cb1" data-org-language="lisp"><pre
-class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>(ql:quickload :maxpc)</span></code></pre></div>
+class="shell"><code class=""><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>(ql:quickload :maxpc)</span></code></pre></div>
 <ul>
 <li>Create a package namespace and include the MaxPC on the
 package:</li>
 </ul>
 <div class="" id="cb2" data-org-language="lisp"><pre
-class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defpackage</span><span class="fu"> </span>:parsing-playground</span>
+class="shell><code class=""><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defpackage</span><span class="fu"> </span>:parsing-playground</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  (<span class="bu">:use</span> :cl :maxpc))</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>(<span class="kw">in-package</span> :parsing-playground)</span></code></pre></div>
@@ -302,12 +302,12 @@ class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb2-
 to try some basic parsers on our SBCL:</li>
 </ul>
 <div class="" id="cb3" data-org-language="lisp"><pre
-class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>parsing-playground <span class="op">&gt;</span> (parse &#39;(foo) (=element)) → FOO, T, T</span>
+class="shell"><code class=""><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>parsing-playground <span class="op">&gt;</span> (parse &#39;(foo) (=element)) → FOO, T, T</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>parsing-playground <span class="op">&gt;</span> (parse &#39;(x) (?eq <span class="dt">&#39;y</span>)) ⇒ NIL, NIL, NIL</span></code></pre></div>
 <p>For us to determine the result that is based on generalized boolean,
 this is the parser template:</p>
 <div class="" id="cb4" data-org-language="lisp"><pre
-class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">function</span> (input) (<span class="kw">or</span> input <span class="kw">null</span>) <span class="op">*</span> <span class="kw">boolean</span>)</span></code></pre></div>
+class="shell"><code class=""><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">function</span> (input) (<span class="kw">or</span> input <span class="kw">null</span>) <span class="op">*</span> <span class="kw">boolean</span>)</span></code></pre></div>
 <ul>
 <li>In the former basic parser, we use:
 <ul>
@@ -328,18 +328,18 @@ the complete input-source.</em></p>
 <li>Question mark (?) will never produce a result value.</li>
 </ul>
 <div class="" id="cb5" data-org-language="lisp"><pre
-class="shell"><code class=""><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>(parse &#39;(x) (?eq <span class="dt">&#39;y</span>)) → NIL, NIL, NIL</span></code></pre></div>
+class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>(parse &#39;(x) (?eq <span class="dt">&#39;y</span>)) → NIL, NIL, NIL</span></code></pre></div>
 <ul>
 <li>Equals sign (=) will always produce a result value.</li>
 </ul>
 <div class="" id="cb6" data-org-language="lisp"><pre
-class="shell"><code class=""><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>(parse &#39;(foo) (=element)) → FOO, T, T</span></code></pre></div>
+class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>(parse &#39;(foo) (=element)) → FOO, T, T</span></code></pre></div>
 <ul>
 <li>Percent symbol (%) may produce a result value depending on their
 arguments.</li>
 </ul>
 <div class="" id="cb7" data-org-language="lisp"><pre
-class="shell"><code class="><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>(parse &#39;(z) (%maybe (=element))) → Z, T, T</span>
+class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>(parse &#39;(z) (%maybe (=element))) → Z, T, T</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>(parse &#39;() (%any (=element))) → NIL, T, T</span></code></pre></div>
 <h1 id="parsing-a-json-file.">Parsing a JSON file.</h1>
 <p>Now that you've explored the capabilities of MaxPC, let’s apply it to
@@ -349,13 +349,13 @@ parser will handle only a single data entry, rather than multiple
 entries.</p>
 <p><code class="verbatim">Example .JSON file:</code></p>
 <pre class="example"><code>{
-    &quot;Name&quot;: &quot;Alice&quot;,
-    &quot;Age&quot;: &quot;30&quot;
+    &quot;Name&quot;: &quot;nycto&quot;,
+    &quot;Age&quot;: &quot;22&quot;
 }
 </code></pre>
 <p><strong>For our utilities:</strong></p>
 <div class="" id="cb9" data-org-language="lisp"><pre
-class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>?whitespace ()</span>
+class="shell"><code class="sourceCode commonlisp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>?whitespace ()</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Match zero or more whitespace character input.&quot;</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  (?seq (%any (maxpc.char:?whitespace))))</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -377,7 +377,7 @@ class="shell"><code class=""><span id="cb10-1"><a href="#cb10-1" aria-hidden="tr
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>(parse &#39;(<span class="ch">#\3</span> <span class="ch">#\0</span>) (?digit-p)) →  NIL, T, T</span></code></pre></div>
 <p><strong>For matching the name and name's value:</strong></p>
 <div class="" id="cb11" data-org-language="lisp"><pre
-class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>=key ()</span>
+class="shell"><code class="sourceCode commonlisp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>=key ()</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Returns a key string.&quot;</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  (=destructure (_ str &amp;<span class="kw">rest</span> _)</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                (=list (?eq <span class="ch">#\&quot;</span>)</span>
@@ -401,12 +401,12 @@ destructuring-bind, this process becomes easier. The underscore (_) is
 used to ignore the result values, allowing us to omit the backslashes
 and colons from the results.</p>
 <p><strong>Result:</strong></p>
-<div class=" id="cb12" data-org-language="lisp"><pre
-class="shell"><code class="><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>(parse <span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">name</span><span class="sc">\&quot;</span><span class="st">:&quot;</span> (=key))  → <span class="st">&quot;name&quot;</span>, T, T</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>(parse <span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">alice</span><span class="sc">\&quot;</span><span class="st">,&quot;</span> (=value))  → <span class="st">&quot;alice&quot;</span>, T, T</span></code></pre></div>
+<div class="" id="cb12" data-org-language="lisp"><pre
+class="shell"><code class=""><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>(parse <span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">name</span><span class="sc">\&quot;</span><span class="st">:&quot;</span> (=key))  → <span class="st">&quot;name&quot;</span>, T, T</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>(parse <span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">nycto</span><span class="sc">\&quot;</span><span class="st">,&quot;</span> (=value))  → <span class="st">&quot;nycto&quot;</span>, T, T</span></code></pre></div>
 <p><strong>For matching the age's value:</strong></p>
 <div class="" id="cb13" data-org-language="lisp"><pre
-class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a></span>
+class="shell"><code class="sourceCode commonlisp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>=age-value ()</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a> <span class="st">&quot;Return a digit.&quot;</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  (=destructure (_ age _)</span>
@@ -419,7 +419,7 @@ class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb13
 <p><strong>Result:</strong></p>
 <div class="" id="cb14" data-org-language="lisp"><pre
 class="shell"><code class=""><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>(parse <span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">age</span><span class="sc">\&quot;</span><span class="st">:&quot;</span> (=key))</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>(parse <span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">30</span><span class="sc">\&quot;</span><span class="st">&quot;</span> (=age-value))</span></code></pre></div>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>(parse <span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">22</span><span class="sc">\&quot;</span><span class="st">&quot;</span> (=age-value))</span></code></pre></div>
 <p><strong>Return the name and name's value; age and age's
 value:</strong></p>
 <div class="" id="cb15" data-org-language="lisp"><pre
@@ -438,7 +438,7 @@ class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb15
 =list to sequence the parsers and generate a list as shown below.</p>
 <p><strong>Result:</strong></p>
 <div class="" id="cb16" data-org-language="lisp"><pre
-class="shell"><code class="><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>(parse  <span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">name</span><span class="sc">\&quot;</span><span class="st">: </span><span class="sc">\&quot;</span><span class="st">nycto</span><span class="sc">\&quot;</span><span class="st">, </span><span class="sc">\&quot;</span><span class="st">age</span><span class="sc">\&quot;</span><span class="st">: </span><span class="sc">\&quot;</span><span class="st">22</span><span class="sc">\&quot;</span><span class="st">&quot;</span> (=key-value))</span>
+class="shell"><code class=""><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>(parse  <span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">name</span><span class="sc">\&quot;</span><span class="st">: </span><span class="sc">\&quot;</span><span class="st">nycto</span><span class="sc">\&quot;</span><span class="st">, </span><span class="sc">\&quot;</span><span class="st">age</span><span class="sc">\&quot;</span><span class="st">: </span><span class="sc">\&quot;</span><span class="st">22</span><span class="sc">\&quot;</span><span class="st">&quot;</span> (=key-value))</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>→(<span class="st">&quot;name&quot;</span> <span class="st">&quot;nycto&quot;</span> <span class="st">&quot;age&quot;</span> <span class="st">&quot;22&quot;</span>), T, T</span></code></pre></div>
 <p><strong>Top level to parse the entire object:</strong></p>
 <div class="" id="cb17" data-org-language="lisp"><pre

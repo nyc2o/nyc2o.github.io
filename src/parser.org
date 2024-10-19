@@ -15,7 +15,7 @@ For example, when writing code in a programming language, it must be converted i
 Another one is Data parsing, it refers to the process of analyzing a structured format to extract information, and when it comes to JSON (JavaScript Object Notation), this involves interpreting the data represented in a JSON format. JSON is widely used for transmitting data between a server and a web application because of its lightweight and easy-to-read structure. You are going to see an example of parsing functions later on our simple parser JSON implementation and but before that you can read the documentation here: [[https://mr.gy/software/maxpc/api.html#section-1][MaxPC Documentation]].
 
 * MaxPC
-The first parser library I am currently using is [[https://github.com/eugeneia/maxpc][MaxPC]]—a non-complex system where you can write your custom parsing program based on S-expression, that is capable for parse tree transformation, error handling and can operate on sequence and streams. It has five types of parsing functions called Basic parsers, Logical Combinators, Sequence Combinators, Transformation and Error handling. MaxPC also have—Caveat: Recursive Parsers which we are not going to include on this topic.
+The first parser library I am currently using is [[https://github.com/eugeneia/maxpc][MaxPC]]—a non-complex system where you can write your custom parsing program based on S-expression, that is capable for parse tree transformation, error handling and can operate on sequence and streams. It has five types of parsing functions called basic parsers, logical combinators, sequence combinators, transformation and error handling. MaxPC also have—Caveat: Recursive Parsers which we are not going to include on this topic.
 
 * Let's get started
 + To install the MaxPC library, it is avalaible on Quicklisp, If you are using Emacs and SBCL you can open your SLIME to execute this:
@@ -74,8 +74,8 @@ Now that you've explored the capabilities of MaxPC, let’s apply it to a real e
 =Example .JSON file:=
 #+begin_example 
  {
-     "Name": "Alice",
-     "Age": "30"
+     "Name": "nycto",
+     "Age": "22"
  }
 #+end_example
 
@@ -130,7 +130,7 @@ As you can see, the two functions break down the data into components to match e
 *Result:*
 #+begin_src lisp
   (parse "\"name\":" (=key))  → "name", T, T
-  (parse "\"alice\"," (=value))  → "alice", T, T
+  (parse "\"nycto\"," (=value))  → "nycto", T, T
 #+end_src
 
 *For matching the age's value:*
@@ -150,7 +150,7 @@ This function will only accept digits as input and will utilize the *=key* funct
 *Result:*
 #+begin_src lisp
   (parse "\"age\":" (=key))
-  (parse "\"30\"" (=age-value))
+  (parse "\"22\"" (=age-value))
 #+end_src
 
 *Return the name and name's value; age and age's value:*
