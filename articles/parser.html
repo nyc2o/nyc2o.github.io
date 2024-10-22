@@ -237,7 +237,7 @@
 <body>
 <header id="title-block-header">
 <h1 class="title">Exploring Parsing in S-expression.</h1>
-<div class="update">Last updated: October 19, 2024</div>
+<div class="update">Last updated: October 21, 2024</div>
 <iframe 
     src= "https://giphy.com/embed/ozAdeUa7GGhZsbssvQ"
     width="200" 
@@ -292,8 +292,8 @@ class="shell"><code class=""><span id="cb1-1"><a href="#cb1-1" aria-hidden="true
 <li>Create a package namespace and include the MaxPC on the
 package:</li>
 </ul>
-<div class="" id="cb2" data-org-language="lisp"><pre
-class="shell><code class=""><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defpackage</span><span class="fu"> </span>:parsing-playground</span>
+<div class=" id="cb2" data-org-language="lisp"><pre
+class="shell"><code class=""><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defpackage</span><span class="fu"> </span>:parsing-playground</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  (<span class="bu">:use</span> :cl :maxpc))</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>(<span class="kw">in-package</span> :parsing-playground)</span></code></pre></div>
@@ -328,34 +328,44 @@ the complete input-source.</em></p>
 <li>Question mark (?) will never produce a result value.</li>
 </ul>
 <div class="" id="cb5" data-org-language="lisp"><pre
-class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>(parse &#39;(x) (?eq <span class="dt">&#39;y</span>)) → NIL, NIL, NIL</span></code></pre></div>
+class="shell"><code class=""><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>(parse &#39;(x) (?eq <span class="dt">&#39;y</span>)) → NIL, NIL, NIL</span></code></pre></div>
 <ul>
 <li>Equals sign (=) will always produce a result value.</li>
 </ul>
 <div class="" id="cb6" data-org-language="lisp"><pre
-class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>(parse &#39;(foo) (=element)) → FOO, T, T</span></code></pre></div>
+class="">shell<code class=""><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>(parse &#39;(foo) (=element)) → FOO, T, T</span></code></pre></div>
 <ul>
 <li>Percent symbol (%) may produce a result value depending on their
 arguments.</li>
 </ul>
-<div class="" id="cb7" data-org-language="lisp"><pre
-class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>(parse &#39;(z) (%maybe (=element))) → Z, T, T</span>
+<div class="s" id="cb7" data-org-language="lisp"><pre
+class="shell"><code class="sourceCode commonlisp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>(parse &#39;(z) (%maybe (=element))) → Z, T, T</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>(parse &#39;() (%any (=element))) → NIL, T, T</span></code></pre></div>
 <h1 id="parsing-a-json-file.">Parsing a JSON file.</h1>
 <p>Now that you've explored the capabilities of MaxPC, let’s apply it to
 a real example—creating a custom parser for a JSON-like object that
 decodes string keys and simple values (both strings and numbers). This
-parser will handle only a single data entry, rather than multiple
-entries.</p>
+example will show how to build a parser on multiple object entries.—Take
+note that this is just an example, some JSON file that you can see on
+the internet have complex structures, it means you also need to have a
+complex parsing system.</p>
 <p><code class="verbatim">Example .JSON file:</code></p>
 <pre class="example"><code>{
     &quot;Name&quot;: &quot;nycto&quot;,
     &quot;Age&quot;: &quot;22&quot;
 }
+{
+    &quot;Name&quot;: &quot;sion&quot;,
+    &quot;Age&quot;: &quot;20&quot;
+}
+{
+    &quot;Name&quot;: &quot;Bob&quot;,
+    &quot;Age&quot;: &quot;20&quot;
+}
 </code></pre>
 <p><strong>For our utilities:</strong></p>
 <div class="" id="cb9" data-org-language="lisp"><pre
-class="shell"><code class="sourceCode commonlisp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>?whitespace ()</span>
+class="sourceCode commonlisp"><code class="sourceCode"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>?whitespace ()</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Match zero or more whitespace character input.&quot;</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  (?seq (%any (maxpc.char:?whitespace))))</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -363,7 +373,7 @@ class="shell"><code class="sourceCode commonlisp"><span id="cb9-1"><a href="#cb9
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Match to check the elements is a digit character.&quot;</span></span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  (?seq (%<span class="kw">some</span> (?satisfies <span class="dt">&#39;digit-char-p</span>))))</span></code></pre></div>
 <p>It’s important to note that expressions are read from left to right.
-In the =?whitespace function, the ?seq function—matches parsers in
+In the ?whitespace function, the ?seq function—matches parsers in
 sequence, while %any—matches parsers in a variable number of times.</p>
 <p>Similarly, in the =?digit-p function, %some—is used to match parsers
 one or more times, and ?satisfies— checks if the input meets the
@@ -380,20 +390,20 @@ class="shell"><code class=""><span id="cb10-1"><a href="#cb10-1" aria-hidden="tr
 class="shell"><code class="sourceCode commonlisp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>=key ()</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Returns a key string.&quot;</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  (=destructure (_ str &amp;<span class="kw">rest</span> _)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                (=list (?eq <span class="ch">#\&quot;</span>)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                       (=subseq (%<span class="kw">some</span> (?satisfies <span class="dt">&#39;alphanumericp</span>)))</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                       (?eq <span class="ch">#\&quot;</span>)</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                       (?seq (?eq <span class="ch">#\:</span>)))</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    str))</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                  (=list (?eq <span class="ch">#\&quot;</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                         (=subseq (%<span class="kw">some</span> (?satisfies <span class="dt">&#39;alphanumericp</span>)))</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                         (?eq <span class="ch">#\&quot;</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                         (?seq (?eq <span class="ch">#\:</span>)))</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                  str)) </span>
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>=value ()</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;Return a value string.&quot;</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>(=destructure (_ str &amp;<span class="kw">rest</span> _)</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>              (=list (?eq <span class="ch">#\&quot;</span>)</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>                     (=subseq (%<span class="kw">some</span> (?satisfies (<span class="kw">lambda</span> (c) (<span class="kw">not</span> (<span class="kw">eq</span> c <span class="ch">#\&quot;</span>))))))</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>                     (?eq <span class="ch">#\&quot;</span>)</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>                     (?seq (?eq <span class="ch">#\,</span>)))</span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  str))</span></code></pre></div>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>=name-value ()</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Return a value string.&quot;</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  (=destructure (_ str &amp;<span class="kw">rest</span> _)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>                (=list (?eq <span class="ch">#\&quot;</span>)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>                       (=subseq (%<span class="kw">some</span> (?satisfies (<span class="kw">lambda</span> (c) (<span class="kw">not</span> (<span class="kw">eq</span> c <span class="ch">#\&quot;</span>))))))</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>                       (?eq <span class="ch">#\&quot;</span>)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>                       (?seq (?eq <span class="ch">#\,</span>)))</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>                str))</span></code></pre></div>
 <p>As you can see, the two functions break down the data into components
 to match entries like <code class="verbatim">\"name\":"</code> and <code
 class="verbatim">\"alice\","</code>. If you're familiar with
@@ -403,7 +413,7 @@ and colons from the results.</p>
 <p><strong>Result:</strong></p>
 <div class="" id="cb12" data-org-language="lisp"><pre
 class="shell"><code class=""><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>(parse <span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">name</span><span class="sc">\&quot;</span><span class="st">:&quot;</span> (=key))  → <span class="st">&quot;name&quot;</span>, T, T</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>(parse <span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">nycto</span><span class="sc">\&quot;</span><span class="st">,&quot;</span> (=value))  → <span class="st">&quot;nycto&quot;</span>, T, T</span></code></pre></div>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>(parse <span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">nycto</span><span class="sc">\&quot;</span><span class="st">,&quot;</span> (=name-value))  → <span class="st">&quot;nycto&quot;</span>, T, T</span></code></pre></div>
 <p><strong>For matching the age's value:</strong></p>
 <div class="" id="cb13" data-org-language="lisp"><pre
 class="shell"><code class="sourceCode commonlisp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -423,12 +433,12 @@ class="shell"><code class=""><span id="cb14-1"><a href="#cb14-1" aria-hidden="tr
 <p><strong>Return the name and name's value; age and age's
 value:</strong></p>
 <div class="" id="cb15" data-org-language="lisp"><pre
-class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>=key-value ()</span>
+class="shell"><code class="sourceCode commonlisp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>=key-value ()</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;Matches a key-value pair.&quot;</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>(=destructure (key1 _ value1 _ key2 _ value2)</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>              (=list (=key)</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                     (?whitespace)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                     (=value)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                     (=name-value)</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                     (?whitespace)</span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>                     (=key)</span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>                     (?whitespace)</span>
@@ -442,8 +452,8 @@ class="shell"><code class=""><span id="cb16-1"><a href="#cb16-1" aria-hidden="tr
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>→(<span class="st">&quot;name&quot;</span> <span class="st">&quot;nycto&quot;</span> <span class="st">&quot;age&quot;</span> <span class="st">&quot;22&quot;</span>), T, T</span></code></pre></div>
 <p><strong>Top level to parse the entire object:</strong></p>
 <div class="" id="cb17" data-org-language="lisp"><pre
-class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>=parse-json ()</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Matches a JSON object.&quot;</span></span>
+class="shell"><code class="sourceCode commonlisp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>=parse-json ()</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Matches a single JSON object.&quot;</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  (=destructure (_ _ result &amp;<span class="kw">rest</span> _)  </span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                (=list (?eq <span class="ch">#\{</span>)</span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                       (?whitespace)</span>
@@ -494,6 +504,41 @@ class="shell"><code class=""><span id="cb19-1"><a href="#cb19-1" aria-hidden="tr
 <div class="" id="cb20" data-org-language="lisp"><pre
 class="shell"><code class=""><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>(parse-json-file <span class="st">&quot;your-specified-path/example.json&quot;</span>)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>→ (<span class="st">&quot;name&quot;</span> <span class="st">&quot;nycto&quot;</span> <span class="st">&quot;age&quot;</span> <span class="st">&quot;22&quot;</span>),T, T</span></code></pre></div>
+<h1 id="bonus">Bonus</h1>
+<p>To handle a multiple objects, we can just create a new definition on
+our top-level by writing the <code
+class="verbatim">parse-json-objects function</code> as shown below:</p>
+<div class="s" id="cb21" data-org-language="lisp"><pre
+class="shell"><code class="sourceCode"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>=parse-json ()</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Matches a single JSON object.&quot;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  (=destructure (_ _ result &amp;<span class="kw">rest</span> _)  </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                (=list (?eq <span class="ch">#\{</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>                       (?whitespace)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>                       (%<span class="kw">some</span> (=key-value))</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                       (?whitespace)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>                       (?eq <span class="ch">#\}</span>)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>                       (?whitespace))</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    result)) </span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>=parse-json-objects ()</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Matches multiple JSON objects.&quot;</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  (=destructure (objs)</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>                (=list (%<span class="kw">some</span> (=parse-json)))</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    (<span class="kw">apply</span> <span class="op">#&#39;</span>append objs))) <span class="co">;; Reduce 1 level of list</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> parse-file </span>(items)</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  (parse items (=parse-json-objects)))</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> parse-json-file </span>(filename)</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Read a JSON file and return the parsed object.&quot;</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>  (<span class="kw">let</span> ((json-string (read-json-file filename)))</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    (parse-file json-string)))</span></code></pre></div>
+<p><strong>Result:</strong></p>
+<div class="" id="cb22" data-org-language="lisp"><pre
+class="shell"><code class=""><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>(parse-json-file <span class="st">&quot;your-specified-path/example.json&quot;</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>((<span class="st">&quot;Name&quot;</span> <span class="st">&quot;nycto&quot;</span> <span class="st">&quot;Age&quot;</span> <span class="st">&quot;22&quot;</span>) (<span class="st">&quot;Name&quot;</span> <span class="st">&quot;sion&quot;</span> <span class="st">&quot;Age&quot;</span> <span class="st">&quot;20&quot;</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a> (<span class="st">&quot;Name&quot;</span> <span class="st">&quot;Bob&quot;</span> <span class="st">&quot;Age&quot;</span> <span class="st">&quot;20&quot;</span>)),T, T</span></code></pre></div>
 <footer class="footer">
       <div class="right">© 2024 Nycto</div>
   <div class="footer-menu">

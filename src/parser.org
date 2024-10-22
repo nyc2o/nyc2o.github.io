@@ -69,14 +69,22 @@ Always remember that parser which names starts with a/an:
   #+end_src
   
 * Parsing a JSON file. 
-Now that you've explored the capabilities of MaxPC, let’s apply it to a real example—creating a custom parser for a JSON-like object that decodes string keys and simple values (both strings and numbers). This parser will handle only a single data entry, rather than multiple entries.
+Now that you've explored the capabilities of MaxPC, let’s apply it to a real example—creating a custom parser for a JSON-like object that decodes string keys and simple values (both strings and numbers). This example will show how to build a parser on multiple object entries.—Take note that this is just an example, some JSON file that you can see on the internet have complex structures, it means you also need to have a complex parsing system.
 
 =Example .JSON file:=
 #+begin_example 
- {
-     "Name": "nycto",
-     "Age": "22"
- }
+{
+    "Name": "nycto",
+    "Age": "22"
+}
+{
+    "Name": "sion",
+    "Age": "20"
+}
+{
+    "Name": "Bob",
+    "Age": "20"
+}
 #+end_example
 
 *For our utilities:*
@@ -89,7 +97,8 @@ Now that you've explored the capabilities of MaxPC, let’s apply it to a real e
   "Match to check the elements is a digit character."
   (?seq (%some (?satisfies 'digit-char-p))))
 #+end_src
-It’s important to note that expressions are read from left to right. In the =?whitespace function, the ?seq function—matches parsers in sequence, while %any—matches parsers in a variable number of times.
+
+It’s important to note that expressions are read from left to right. In the ?whitespace function, the ?seq function—matches parsers in sequence, while %any—matches parsers in a variable number of times.
 
 Similarly, in the =?digit-p function, %some—is used to match parsers one or more times, and ?satisfies— checks if the input meets the criteria defined by the symbol digit-char-p.
 
@@ -108,21 +117,20 @@ Similarly, in the =?digit-p function, %some—is used to match parsers one or mo
   (defun =key ()
     "Returns a key string."
     (=destructure (_ str &rest _)
-                  (=list (?eq #\")
-                         (=subseq (%some (?satisfies 'alphanumericp)))
-                         (?eq #\")
-                         (?seq (?eq #\:)))
-      str))
+                    (=list (?eq #\")
+                           (=subseq (%some (?satisfies 'alphanumericp)))
+                           (?eq #\")
+                           (?seq (?eq #\:)))
+                    str)) 
 
-  (defun =value ()
-  "Return a value string."
-  (=destructure (_ str &rest _)
-		(=list (?eq #\")
-		       (=subseq (%some (?satisfies (lambda (c) (not (eq c #\"))))))
-		       (?eq #\")
-		       (?seq (?eq #\,)))
-    str))
-              
+  (defun =name-value ()
+    "Return a value string."
+    (=destructure (_ str &rest _)
+                  (=list (?eq #\")
+                         (=subseq (%some (?satisfies (lambda (c) (not (eq c #\"))))))
+                         (?eq #\")
+                         (?seq (?eq #\,)))
+                  str))
 #+end_src
 
 As you can see, the two functions break down the data into components to match entries like =\"name\":"= and =\"alice\","=. If you're familiar with destructuring-bind, this process becomes easier. The underscore (_) is used to ignore the result values, allowing us to omit the backslashes and colons from the results.
@@ -130,7 +138,7 @@ As you can see, the two functions break down the data into components to match e
 *Result:*
 #+begin_src lisp
   (parse "\"name\":" (=key))  → "name", T, T
-  (parse "\"nycto\"," (=value))  → "nycto", T, T
+  (parse "\"nycto\"," (=name-value))  → "nycto", T, T
 #+end_src
 
 *For matching the age's value:*
@@ -160,7 +168,7 @@ This function will only accept digits as input and will utilize the *=key* funct
   (=destructure (key1 _ value1 _ key2 _ value2)
                 (=list (=key)
                        (?whitespace)
-                       (=value)
+                       (=name-value)
                        (?whitespace)
                        (=key)
                        (?whitespace)
@@ -178,31 +186,31 @@ This function matches and returns two items without brackets. It uses =list to s
 
 *Top level to parse the entire object:*
 #+begin_src lisp
-(defun =parse-json ()
-  "Matches a JSON object."
-  (=destructure (_ _ result &rest _)  
-		(=list (?eq #\{)
-		       (?whitespace)
-		       (%some (=key-value))
-		       (?whitespace)
-		       (?eq #\})
-		       (?whitespace))
-    (apply #'append result))) ;;To flatten the nested-lists.
+  (defun =parse-json ()
+    "Matches a single JSON object."
+    (=destructure (_ _ result &rest _)  
+                  (=list (?eq #\{)
+                         (?whitespace)
+                         (%some (=key-value))
+                         (?whitespace)
+                         (?eq #\})
+                         (?whitespace))
+      (apply #'append result))) ;;To flatten the nested-lists.
 
-(defun parse-file (items)
-  (parse items (=parse-json)))
+  (defun parse-file (items)
+    (parse items (=parse-json)))
 
-(defun read-json-file (filename)
-  "Read the contents of a JSON file and return it as a string."
-  (with-open-file (stream filename)
-    (let ((content (make-string (file-length stream))))
-      (read-sequence content stream)
-      content)))
+  (defun read-json-file (filename)
+    "Read the contents of a JSON file and return it as a string."
+    (with-open-file (stream filename)
+      (let ((content (make-string (file-length stream))))
+        (read-sequence content stream)
+        content)))
 
-(defun parse-json-file (filename)
-  "Read a JSON file and return the parsed object."
-  (let ((json-string (read-json-file filename)))
-    (parse-file json-string)))
+  (defun parse-json-file (filename)
+    "Read a JSON file and return the parsed object."
+    (let ((json-string (read-json-file filename)))
+      (parse-file json-string)))
 #+end_src
 
 The *=parse-json* function matches the structure of a JSON object by using pattern matching to identify an opening brace, whitespace, key-value pairs, and a closing brace and flattens them into a single list. The *parse-file* function serves as a wrapper that applies the =parse-json parser to a given input. The *read-json-file* function reads the contents of a specified JSON file into a string. Finally, the *parse-json- file* function combines file reading and parsing, first fetching the JSON string from the file and then applying the parsing function.
@@ -229,4 +237,42 @@ The *=parse-json* function matches the structure of a JSON object by using patte
 #+begin_src lisp
   (parse-json-file "your-specified-path/example.json")
   → ("name" "nycto" "age" "22"),T, T
+#+end_src
+
+* Bonus
+To handle a multiple objects, we can just create a new definition on our top-level by writing the =parse-json-objects function= as shown below:
+#+begin_src lisp
+(defun =parse-json ()
+  "Matches a single JSON object."
+  (=destructure (_ _ result &rest _)  
+		(=list (?eq #\{)
+		       (?whitespace)
+		       (%some (=key-value))
+		       (?whitespace)
+		       (?eq #\})
+		       (?whitespace))
+    result)) 
+
+(defun =parse-json-objects ()
+  "Matches multiple JSON objects."
+  (=destructure (objs)
+		(=list (%some (=parse-json)))
+    (apply #'append objs))) ;; Reduce 1 level of list
+
+(defun parse-file (items)
+  (parse items (=parse-json-objects)))
+
+
+(defun parse-json-file (filename)
+  "Read a JSON file and return the parsed object."
+  (let ((json-string (read-json-file filename)))
+    (parse-file json-string)))
+  
+#+end_src
+
+*Result:*
+#+begin_src lisp
+(parse-json-file "your-specified-path/example.json")
+(("Name" "nycto" "Age" "22") ("Name" "sion" "Age" "20")
+ ("Name" "Bob" "Age" "20")),T, T
 #+end_src
