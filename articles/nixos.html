@@ -5,8 +5,7 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
  <link rel="icon" href="../img/icon.png" type="image/png">
-  <meta name="author" content="Nycto" />
-  <title>How NixOS treated a Novice sysadmin</title>
+  <title>How NixOS Treated a Novice Sysadmin</title>
   <style>
     html {
       color: #1a1a1a;
@@ -238,7 +237,7 @@
 <body>
 <header id="title-block-header">
 <h1 class="title">How NixOS Treated a Novice Sysadmin</h1>
-<div class="update">Last updated: September 22, 2024</div>
+<div class="update">Last updated: December 22, 2024</div>
 <iframe 
     src="https://giphy.com/embed/FH1gGTZg8QCQRKG5KP" 
     width="200" 
@@ -388,7 +387,7 @@ partitions.</em></p>
 </code></pre>
 <h2
 id="after-the-creation-of-volumes-its-time-to-encrypt-the-root">After
-the creation of volumes, It’s time to encrypt the root:</h2>
+the creation of volumes, It's time to encrypt the root:</h2>
 <pre><code># cryptsetup luksFormat /dev/vg/root
 # cryptsetup luksOpen /dev/vg/root root
 </code></pre>
@@ -416,7 +415,7 @@ configuration:</h2>
 <h2 id="edit-the-configuration-file">Edit the configuration file:</h2>
 <p>You may see this <a
 href="https://ebzzry.com/en/nix/#nixpaths">link</a> under the <code
-class="verbatim">install to disk</code> of <strong>ebzzry’s</strong>
+class="verbatim">install to disk</code> of <strong>ebzzry's</strong>
 article—<a href="https://ebzzry.com/en/nix/#nixpaths">A Gentle
 Introduction to the Nix Family</a> because I followed his own
 configuration for my first crack of NixOS system environment. Remember,
@@ -462,13 +461,13 @@ useful in situations where the root filesystem configuration needs to be
 explicitly set and maintained despite of any other potential
 conflicts.</p>
 <h2 id="root-account-is-locked.">Root account is locked.</h2>
-<p>[[../img/lock.png]</p>
+<p><img src="../img/lock.png" /></p>
 <p>While I was already inside NixOS, I accidentally deleted an important
 directory in my <strong>root</strong> account due to bad assumption. You
 might be wondering how I resolved this. Yes, I came back from scratch
-because I can’t use a terminal on the live environment because my root
+because I can't use a terminal on the live environment because my root
 account is locked, So I need to go on the live installation again when
-my boothable USB was already corrupted that time and I don’t have an
+my boothable USB was already corrupted that time and I don't have an
 extra one. <em>Do you know now why article title is like that?.</em></p>
 <h1 id="installing-nix-packages">Installing Nix Packages</h1>
 <p>NixOS has a collection of packages called <strong>Nixpkgs</strong>.
@@ -488,7 +487,7 @@ packages.</p>
 <p>The <strong>nixos-unstable</strong> and
 <strong>nixpkgs-unstable</strong> channels serve different purposes. If
 you use nixos-unstable, you’ll get the latest updates to the core NixOS
-system. It’s great for staying on the cutting edge of NixOS features. On
+system. It's great for staying on the cutting edge of NixOS features. On
 the other hand, nixpkgs-unstable provides the latest versions of
 software packages, libraries, and tools, so you can access the newest
 applications and updates without waiting for the stable release.</p>
@@ -509,17 +508,100 @@ class="sourceCode nix"><code class="sourceCode nix"><span id="cb20-1"><a href="#
 <div class="sourceCode" id="cb21"><pre
 class="sourceCode nix"><code class="sourceCode nix"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># nix-env -q</span></span></code></pre></div>
 <h1 id="nix-commands">Nix commands</h1>
-<p>In my current user environment I am using a <strong>nix
-commands</strong> to install such packages.</p>
-<p><strong>To install a package:</strong></p>
-<div class="sourceCode" id="cb22"><pre
-class="sourceCode nix"><code class="sourceCode nix"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># nix profile install nixpkgs#my_desired_package</span></span></code></pre></div>
-<p><strong>To locate or search packages:</strong></p>
-<div class="sourceCode" id="cb23"><pre
-class="sourceCode nix"><code class="sourceCode nix"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#  nix-locate desired_package</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  nix search nixpkgs  desired_package</span></span></code></pre></div>
-<p>Those two commands will give you the name of the package that you
-need.</p>
+<p>To enable the nix command in NixOS, copy and paste this snippet into
+your root NixOS configuration.</p>
+<div class="sourceCode"><pre
+<pre>nix.settings.experimental-features = [ &quot;nix-command&quot; &quot;flakes&quot; ]; 
+</pre></code></div>
+<p>After your NixOS rebuild, make sure to test some main-commands like
+executing nix repl to make sure that it works.</p>
+<div class="sourceCode nix">
+$ nix repl
+
+nix-repl&gt; 1000 * 1000
+
+1000000
+</code></pre></div>
+<p>In my current user environment I am using a <strong>nix experimental
+commands</strong> to install such packages. To install a package:*</p>
+<div class="sourceCode" id="cb24">
+<preclass="sourceCode nix">
+<code class="sourceCode nix"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># nix profile install nixpkgs#my_desired_package</span></span></code></pre></div>
+<p><strong>To locate or search packages:</strong> These two experimental
+commands will give you the name of the package that you need.</p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode nix"><code class="sourceCode nix"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">#  nix-locate desired_package</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  nix search nixpkgs  desired_package</span></span></code></pre></div>
+<h1 id="flakes">Flakes</h1>
+<p>As you can see in my experimental features, I also have the flakes
+input enabled. Flakes are a new addition to the Nix ecosystem, It is
+designed to enhance the reproducibility and shareability of package
+management, development environments, and system configurations. In
+simple terms, Nix flakes provide a method for organizing and managing
+Nix-based projects. A "flake" is essentially a self-contained package or
+configuration that includes all the dependencies and setup needed to
+build or run a project. This approach simplifies the sharing and usage
+of Nix expressions—code that define how to build packages, systems,
+environments, and more—across different machines, for consistencies.</p>
+<h1 id="whats-inside-a-flake">What's inside a flake?</h1>
+<p>A flake.nix file is a central file defining the flake, which contains
+all the dependencies, configuration, and settings necessary to build or
+configure the flake. It specifies some metadata about the flake called
+Inputs, these are the dependencies of the flake, often other flakes,
+Nixpkgs, or external sources that the flake depends on and Outputs are
+the values of building or configuring the flake.</p>
+<h1 id="why-use-nix-flakes">Why use nix flakes?</h1>
+<p>Flakes make sure that what you build on one machine will be identical
+on another, down to the last detail. It also supports collaboration
+where sharing and reusing Nix-based code becomes much easier since
+flakes explicitly define their dependencies or outputs and lastly
+self-contained, a flake is a complete, portable unit of Nix code,
+meaning it can be versioned, pinned, and shared in a very predictable
+way.</p>
+<h1 id="example-of-a-simple-flake.nix-file">Example of a simple
+flake.nix file</h1>
+<p>Since I am not that familiar on Nix expressions syntax yet. I am
+going to give you an example provided from the manual.</p>
+<p>To build a flake just follow the snippet below:</p>
+<div class="sourceCode nix">
+<pre>
+&gt; nix flake new hello
+
+&gt; cd hello
+
+&gt; nix build
+
+&gt; nix run
+Hello, world!
+</pre></div>
+<p>The first one is a way to create you a flake.nix file into a
+directory named <code class="verbatim">hello</code>, a flake is a
+filesystem tree that contains a file named <code
+class="verbatim">flake.nix</code> in your root directory, second is to
+change directory from your root directory to hello directory, The third
+one is build the default package from the flake and run to see the
+output. Additionally, <code class="verbatim">flakes.lock</code> file
+that you'll see on the directory helps you ensure that running the
+project at different times or on different machines will produce the
+same results, as long as the lock file is used.</p>
+<p>When you open the flake.nix file this is what it looks like:</p>
+<div class="sourceCode nix">
+<pre>{
+  description = &quot;A very basic flake&quot;;
+
+  inputs = {
+    nixpkgs.url = &quot;github:nixos/nixpkgs?ref=nixos-unstable&quot;;
+  };
+
+  outputs = { self, nixpkgs }: {
+
+    packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
+
+    packages.x86_64-linux.default = self.packages.x86_64-linux.hello;
+
+  };
+}
+</pre></div>
 <h1 id="appreciation">Appreciation</h1>
 <p>If you wish to know more about introduction of Nix Family you may go
 on this article—<a href="https://ebzzry.com/en/nix/#nixpaths">A Gentle
@@ -529,7 +611,7 @@ have my NixOS on my machine. Thanks to my cousin <a
 href="https://www.facebook.com/jasther25">Jasther</a> who let me use his
 computer to gather information about NixOS, and <a
 href="https://www.facebook.com/rojieliamliezl">Roj</a> who helped me to
-revive my corrupted boothable USB using <strong>Hiren’s BootCD</strong>
+revive my corrupted boothable USB using <strong>Hiren's BootCD</strong>
 because of my negligence.</p>
 <footer class="footer">
       <div class="right">© 2024 Nycto</div>
