@@ -543,14 +543,14 @@ configuration that includes all the dependencies and setup needed to
 build or run a project. This approach simplifies the sharing and usage
 of Nix expressions—code that define how to build packages, systems,
 environments, and more—across different machines, for consistencies.</p>
-<h1 id="whats-inside-a-flake">What's inside a flake?</h1>
+<h1 id="whats-inside-a-flake">What's Inside a Flake?</h1>
 <p>A flake.nix file is a central file defining the flake, which contains
 all the dependencies, configuration, and settings necessary to build or
 configure the flake. It specifies some metadata about the flake called
 Inputs, these are the dependencies of the flake, often other flakes,
 Nixpkgs, or external sources that the flake depends on and Outputs are
 the values of building or configuring the flake.</p>
-<h1 id="why-use-nix-flakes">Why use nix flakes?</h1>
+<h1 id="why-use-nix-flakes">Why Use Nix Flakes?</h1>
 <p>Flakes make sure that what you build on one machine will be identical
 on another, down to the last detail. It also supports collaboration
 where sharing and reusing Nix-based code becomes much easier since
@@ -558,8 +558,8 @@ flakes explicitly define their dependencies or outputs and lastly
 self-contained, a flake is a complete, portable unit of Nix code,
 meaning it can be versioned, pinned, and shared in a very predictable
 way.</p>
-<h1 id="example-of-a-simple-flake.nix-file">Example of a simple
-flake.nix file</h1>
+<h1 id="example-of-a-simple-flake.nix-file">Example of a Simple
+Flake.nix File</h1>
 <p>Since I am not that familiar on Nix expressions syntax yet. I am
 going to give you an example provided from the manual.</p>
 <p>To build a flake just follow the snippet below:</p>
