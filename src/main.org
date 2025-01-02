@@ -2,8 +2,6 @@
 #+author: Nycto
 #+language: en
 #+startup: overview
-#+PANDOC_OPTIONS: standalone:t 
-#+options: toc:nil html-postamble:nil
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../css/main.css">
 #+PANDOC_OPTIONS:"epub-cover-image:/home/nycto/github/nyc2o.github.io/img/const.png" standalone:t
 
@@ -17,7 +15,7 @@ This passage reflects a personal journey through life and technology. The author
 - [[file:articles/nixos.html][How NixOS Treated a Novice Sysadmin]]
 - [[file:articles/docker.html][Docker Containers Are Fast]]
 - [[file:articles/parser.html][Explore Parsing in S-expression]]
-
+- [[file:articles/tmux.html][Using Tmux to Perk Up Your Terminal Experience]]
 [[file:about.html][About]] 
 Last updated: October 19, 2024
 © Nycto 2024 

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+ <link rel="icon" href="../img/icon.png" type="image/png">
+  <title>Using Tmux to Perk Up Your Terminal Experience</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" type="text/css" href="../css/nix.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Using Tmux to Perk Up Your Terminal Experience</h1>
+<div class="update">Last updated: January 02, 2025</div>
+<iframe 
+    src="https://giphy.com/embed/Md5UqmyyS2dhu" 
+    width="200" 
+    height="200" 
+    style="border: none; margin-bottom: -100px;" 
+    frameBorder="0" 
+    class="giphy-embed">
+</iframe>
+</header>
+<h1 id="introduction">Introduction</h1>
+<p>As engineers, one of the essential tools we've always relied on is
+the terminal, due to its efficieny and speed that allows us to execute
+commands directly and quickly without the overhead of navigating through
+Graphical User Interfaces (GUIs). This is very useful for tasks like
+file management, system administration and building a project. One of us
+probably consumes a lot of time to work extensively in a single terminal
+and we need to open another terminal to do another tasks or when you disconnect 
+from a server and there's no way to return to your previous activities. In this
+article, we'll explore how <a href="https://github.com/tmux">tmux</a>
+can help us avoid that.</p>
+<h1 id="tmux-setup-in-nixos">Tmux Setup in NixOS</h1>
+<p><strong><strong>With flakes</strong></strong>:</p>
+<div class="sourceCode"><pre>nix profile install nixpkgs#tmux
+</div></pre>
+<p><strong><strong>Without flakes</strong></strong>:</p>
+<div class="sourceCode"><pre>nix-env -iA nixpkgs.tmux
+</div></pre>
+<p><strong><strong>To check if it is correctly
+installed</strong></strong>:</p>
+<div class="sourceCode"><pre>$ tmux -V
+tmux 3.5a
+</div></pre>
+<h1 id="configuration">Configuration</h1>
+<p>To configure your tmux, If you don't have a configuration file yet, you
+can create a <code class="verbatim">~/.tmux.conf</code>. Since I am using
+vim now, here is my command:</p>
+<div class="sourceCode"><pre>vim ~/.tmux.conf
+</div></pre>
+<p>After you have your configuration file, you can begin editing it. To
+give you an overview, here are the main sections you might want to add
+or configure with tmux. I'll go over each of these configuration steps
+with my own setup</p>
+<h2 id="reload-configuration">Reload Configuration:</h2>
+<p>By default, tmux uses <code class="verbatim">C-b (Ctrl + b)</code> as
+the prefix key. This means that to issue most tmux commands, you need to
+press C-b first, but we are going to change it to <code
+class="verbatim">C-z (Ctrl + z)</code>.</p>
+<div class="sourceCode"><pre>set -g prefix C-z
+</div></pre>
+<p>To reload the configuration, Binds the <code
+class="verbatim">.</code> key to reload the tmux configuration file,
+which is useful for quickly reloading any changes made to <code
+class="verbatim">~/.tmux.conf</code> and</p>
+<div class="sourceCode"><pre>bind . source-file ~/.tmux.conf
+</div></pre>
+<h2 id="unbinding-default-key-bindings">1. Unbinding Default Key
+Bindings</h2>
+<p>The reason for using unbind in tmux configuration is to ensure the
+keys are not already bound to any other function before you reassign
+it.</p>
+<div class="sourceCode"><pre>unbind C-b
+unbind C-l
+unbind &quot;&#39;&quot;
+unbind &#39;&quot;&#39;
+unbind -n M-left
+unbind -n M-right
+unbind -n M-up
+unbind -n M-down
+unbind %
+unbind Space
+unbind !
+unbind -n C-Left
+unbind -n C-Right
+unbind -n C-Up
+unbind -n C-Down
+</div></pre>
+<h2 id="vim-friendly">2. Vim-friendly</h2>
+<p>This section enables vim-like navigation to make tmux more
+user-friendly.</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># vim keys</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setw</span> <span class="at">-g</span> mode-keys vi</span></code></pre></div>
+<p>This makes the navigation keys <code class="verbatim">h</code>, <code
+class="verbatim">j</code>, <code class="verbatim">k</code>, and <code
+class="verbatim">l</code> behave like they do in vim.</p>
+<h2 id="navigating-between-windows">3. Navigating Between Windows</h2>
+<p>Next, the configuration customizes the arrow keys to efficiently
+navigate between tmux windows.</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">bind</span> Left  previous-window                                     <span class="co">#1</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">bind</span> Right next-window                                         <span class="co">#2</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">bind</span> Up    swap-window <span class="at">-t</span> <span class="at">-1\;</span> previous-window                 <span class="co">#3</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="bu">bind</span> Down  swap-window <span class="at">-t</span> +1<span class="dt">\;</span> next-window                     <span class="co">#4</span></span></code></pre></div>
+<ul>
+<li>1: Binds the left arrow key to navigate to the previous window.</li>
+<li>2: Binds the right arrow key to navigate to the next window.</li>
+<li>3: The up arrow key moves the current window one position up and
+switches to the previous window.</li>
+<li>4: The down arrow key moves the current window one position down and
+switches to the next window.</li>
+</ul>
+<h2 id="creating-and-moving-windows">4. Creating and Moving Windows</h2>
+<p>This section customizes keys for creating new windows and moving
+windows around.</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">bind</span> c new-window <span class="at">-c</span> <span class="st">&quot;#{pane_current_path}&quot;</span>                    <span class="co">#1</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">bind</span> C new-window <span class="at">-c</span> ~                                         <span class="co">#2</span></span></code></pre></div>
+<ul>
+<li>1: Binds <code class="verbatim">c</code> to create a new window in
+the current pane's directory.</li>
+<li>2: Binds <code class="verbatim">C</code> to create a new window in
+the home directory (<code class="verbatim">~</code>).</li>
+</ul>
+<h2 id="splitting-panes-and-navigating-between-windows">5. Splitting
+Panes and Navigating Between Windows</h2>
+<p>This section binds keys for splitting the terminal into multiple
+panes and for switching between the first to the last window.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">bind</span> <span class="st">&quot;&#39;&quot;</span> split-window <span class="at">-v</span> <span class="at">-c</span> <span class="st">&quot;#{pane_current_path}&quot;</span>              <span class="co">#1</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">bind</span> / split-window <span class="at">-h</span> <span class="at">-c</span> <span class="st">&quot;#{pane_current_path}&quot;</span>                <span class="co">#2</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">bind</span> v split-window <span class="at">-h</span> <span class="at">-c</span> <span class="st">&quot;#{pane_current_path}&quot;</span>                <span class="co">#3</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="bu">bind</span> Space last-window                                          <span class="co">#4</span></span></code></pre></div>
+<ul>
+<li>1: Binds <code class="verbatim">'</code> to split the current pane
+vertically, and the new pane will inherit the current directory.</li>
+<li>2: Binds <code class="verbatim">/</code> to split the pane
+horizontally, again inheriting the current directory.</li>
+<li>3: This binds <code class="verbatim">v</code> to also split the pane
+horizontally, just like <code class="verbatim">/</code>.</li>
+<li>4: Binds the spacebar to switch to the last window, making it easy
+to toggle between the last two windows.</li>
+</ul>
+<h2 id="general-settings">6. General Settings</h2>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> default-terminal <span class="st">&quot;screen-256color&quot;</span>                       <span class="co">#1</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> default-shell <span class="va">$SHELL</span>                                     <span class="co">#2</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> base-index 1                                             <span class="co">#3</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> history-limit 100000                                     <span class="co">#4</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">set-option</span> <span class="at">-ga</span> terminal-overrides <span class="st">&quot;,screen-256color:Tc&quot;</span>         <span class="co">#5</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="ex">set-option</span> <span class="at">-g</span> automatic-rename on                               <span class="co">#6</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="ex">set-option</span> <span class="at">-g</span> automatic-rename-format <span class="st">&#39;#{b:pane_current_path}&#39;</span>  <span class="co">#7</span></span></code></pre></div>
+<ul>
+<li>1: Specifies the terminal type to be <code
+class="verbatim">screen-256color</code>, which supports
+<strong><strong>256 colors</strong></strong> and is ideal for
+terminal-based applications, including tmux.</li>
+<li>2: Sets the default shell to <code class="verbatim">$SHELL</code>,
+which is the value of the shell currently used in your terminal (e.g.,
+<code class="verbatim">bash</code> or <code
+class="verbatim">zsh</code>).</li>
+<li>3: This sets the index of windows and panes to start at 1, instead
+of the default 0. This makes numbering consistent with many
+applications.</li>
+<li>4: Increases the scrollback buffer history to
+<strong>100,000</strong> lines. This allows tmux to store a larger
+history, so you can scroll through and review more terminal output.</li>
+<li>5: Adds a terminal override to ensure true color support (24-bit
+color) for tmux when using <code
+class="verbatim">screen-256color</code>.</li>
+<li>6: Enables automatic renaming of windows based on the name of the
+running process (useful for identifying windows by the task).</li>
+<li>7: Customizes the format of the automatic renaming to use the
+current directory <code class="verbatim">(pane_current_path)</code> of
+the active pane, which can help identify the purpose of a window based
+on its directory.</li>
+</ul>
+<h2 id="window-and-pane-settings">7. Window and Pane Settings</h2>
+<p>This section customizes the appearance and behavior of tmux windows
+and panes.</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">set-window-option</span> <span class="at">-g</span> mode-keys vi                                <span class="co">#1</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setw</span> <span class="at">-g</span> window-active-style <span class="st">&#39;bg=#181107&#39;</span>                         <span class="co">#2</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setw</span> <span class="at">-g</span> window-style <span class="st">&#39;bg=#181107&#39;</span>                                <span class="co">#3</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="ex">setw</span> <span class="at">-g</span> window-status-format <span class="st">&quot;#I:#W#F &quot;</span>                          <span class="co">#4</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="ex">setw</span> <span class="at">-g</span> window-status-style <span class="st">&#39;fg=white,bg=#090702,bold&#39;</span>           <span class="co">#5</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="ex">setw</span> <span class="at">-g</span> window-status-current-format <span class="st">&quot;#I:#W#F &quot;</span>                  <span class="co">#6</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="ex">setw</span> <span class="at">-g</span> window-status-current-style <span class="st">&#39;fg=orange,bg=#181107,bold&#39;</span>  <span class="co">#7</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> status-interval 1                                         <span class="co">#8</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> status-position bottom                                    <span class="co">#9</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> status-bg <span class="st">&quot;#090702&quot;</span>                                       <span class="co">#10</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> status-fg <span class="st">&quot;#D4D4D4&quot;</span>                                       <span class="co">#11</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> status-left <span class="st">&#39;&#39;</span>                                            <span class="co">#12</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> status-left-style <span class="st">&#39;fg=orange,bg=#181107&#39;</span>                  <span class="co">#13</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> status-right <span class="st">&#39;#{prefix_highlight}&#39;</span>                        <span class="co">#14</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> status-right-length 50                                    <span class="co">#15</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> status-right-style <span class="st">&#39;fg=orange,bg=#181107&#39;</span>                 <span class="co">#16</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> pane-border-style <span class="st">&#39;fg=#090702,bg=#181107&#39;</span>                 <span class="co">#17</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> pane-active-border-style <span class="st">&#39;fg=orange,bg=#181107&#39;</span>           <span class="co">#18</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> pane-border-lines <span class="st">&#39;heavy&#39;</span>                                 <span class="co">#19</span></span></code></pre></div>
+<ul>
+<li>1: Enables <strong><strong>vi</strong></strong>-style key bindings
+for tmux's copy mode. This allows you to navigate through the output
+using vim-like keys (e.g., <code class="verbatim">h</code>, <code
+class="verbatim">j</code>, <code class="verbatim">k</code>, <code
+class="verbatim">l</code>).</li>
+<li>2: Customizes the background color of the active window to <code
+class="verbatim">#181107</code>.</li>
+<li>3: Sets the default background color for all windows to <code
+class="verbatim">#181107</code>, which helps maintain a consistent color
+scheme.</li>
+<li>4: Defines the format for displaying window status. This includes
+the window index (<code class="verbatim">#I</code>), window name (<code
+class="verbatim">#W</code>), and the window flags (<code
+class="verbatim">#F</code>).</li>
+<li>5: Sets the style for inactive windows, making them white text on a
+dark background with bold font.</li>
+<li>6: Defines the format for the currently active window, which is the
+same as the inactive window but highlighted.</li>
+<li>7: Sets the style for the active window, making it orange text on a
+dark background with bold font.</li>
+<li>8: Sets the interval (in seconds) for updating the status line. A
+value of 1 means tmux will update the status line every second.</li>
+<li>9: Places the status bar at the bottom of the tmux window.</li>
+<li>10: Sets the background color of the status line to a dark color
+<code class="verbatim">#090702</code>.</li>
+<li>11: Sets the foreground (text) color of the status line to light
+gray <code class="verbatim">(#D4D4D4)</code>.</li>
+<li>12: Clears the left section of the status line.</li>
+<li>13: Styles the left section of the status line with orange text on a
+dark background.</li>
+<li>14: Displays the current prefix key <code
+class="verbatim">(#{prefix_highlight})</code> in the right section of
+the status line.</li>
+<li>15: Limits the right section of the status line to a length of 50
+characters.</li>
+<li>16: Styles the right section of the status line with orange text on
+a dark background.</li>
+<li>17: Customizes the appearance of pane borders, setting the
+foreground color to dark and the background to a slightly lighter dark
+color.</li>
+<li>18: Sets the border style of the active pane to have an orange
+foreground and dark background.</li>
+<li>19: Changes the border lines between panes to a "heavy" style,
+making the borders more prominent.</li>
+</ul>
+<h2 id="plugin-management">8. Plugin Management</h2>
+<p>This section sets up the plugins for tmux, allowing you to enhance
+its functionality with various tmux plugins.</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> @plugin <span class="st">&#39;tmux-plugins/tpm&#39;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> @plugin <span class="st">&#39;tmux-plugins/tmux-resurrect&#39;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> @plugin <span class="st">&#39;tmux-plugins/tmux-sensible&#39;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> @plugin <span class="st">&#39;tmux-plugins/tmux-yank&#39;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> @plugin <span class="st">&#39;tmux-plugins/tmux-continuum&#39;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> @plugin <span class="st">&#39;tmux-plugins/tmux-prefix-highlight&#39;</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> @continuum-restore <span class="st">&#39;on&#39;</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-g</span> @plugin <span class="st">&#39;christoomey/vim-tmux-navigator&#39;</span></span></code></pre></div>
+<h3 id="tmux-plugin-manager"><a
+href="https://github.com/tmux-plugins/tpm">Tmux Plugin Manager:</a></h3>
+<p>This enables the <strong><strong>tmux plugin
+manager</strong></strong> which simplifies the installation and
+management of tmux plugins.</p>
+<h3 id="resurrect"><a
+href="https://github.com/tmux-plugins/tmux-resurrect">Resurrect</a>:</h3>
+<p><strong><strong>tmux-resurrect</strong></strong> plugin saves and
+restores tmux sessions, windows, panes, and their contents.</p>
+<h3 id="sensible"><a
+href="https://github.com/tmux-plugins/tmux-sensible">Sensible</a>:</h3>
+<p><strong><strong>tmux-sensible</strong></strong> plugin provides a set
+of sensible default tmux configurations for a better out-of-the-box
+experience.</p>
+<h3 id="yank"><a
+href="https://github.com/tmux-plugins/tmux-yank">Yank</a>:</h3>
+<p><strong><strong>tmux-yank</strong></strong> plugin allowing us to
+copy and paste text between tmux and the system clipboard.</p>
+<h3 id="continuum"><a
+href="https://github.com/tmux-plugins/tmux-continuum">Continuum</a>:</h3>
+<p><strong><strong>tmux-continuum</strong></strong> ensures that tmux
+sessions are automatically saved and restored across reboots.</p>
+<h3 id="prefix-highlights"><a
+href="https://github.com/tmux-plugins/tmux-prefix-highlight">Prefix-highlights</a>:</h3>
+<p><strong><strong>tmux-prefix-highlight</strong></strong> highlights
+the prefix key (e.g., <code class="verbatim">Ctrl + z</code>) when it is
+pressed, helping you identify when tmux commands are being
+triggered.</p>
+<h3 id="restore"><a
+href="https://github.com/tmux-plugins/tmux-resurrect">Restore</a>:</h3>
+<p>Ensures that <strong><strong>tmux-continuum</strong></strong>
+automatically restores your tmux session when tmux starts up.</p>
+<h3 id="navigator"><a
+href="https://github.com/christoomey/vim-tmux-navigator">Navigator</a>:</h3>
+<p><strong><strong>Vim-tmux-navigator</strong></strong> plugin allows
+seamless navigation between vim and tmux panes using the same
+keybindings (e.g., <code class="verbatim">h</code>, <code
+class="verbatim">j</code>, <code class="verbatim">k</code>, <code
+class="verbatim">l</code>).</p>
+<h2 id="initializing-plugins">9. Initializing Plugins</h2>
+<p>Finally, this line loads the tmux plugins configured above.</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">run</span> <span class="st">&#39;~/.tmux/plugins/tpm/tpm&#39;</span></span></code></pre></div>
+<p>This loads the tmux plugin manager (TPM) and installs the plugins
+that have been specified. To install the plugins, you can just use <code
+class="verbatim">C-z I</code>.</p>
+<h1 id="playground">Playground</h1>
+<p>This sections will show you my favorite and important features while
+using tmux.</p>
+<h2 id="execute-tmux">Execute tmux</h2>
+<p><img
+src="file:///home/nycto/org/.attach/42/be7642-7ac5-4c87-9056-7222d5b0efda/02.png" /></p>
+<h2 id="save-session">Save session</h2>
+<ul>
+<li>When you are already inside tmux, If you want to save your session.
+Simply execute this command: <strong>(C-z C-s)</strong></li>
+</ul>
+<p><img
+src="file:///home/nycto/org/.attach/5a/959c99-4501-427e-9eef-5c2d423d9fbd/03.png" /></p>
+<ul>
+<li>When you see a message like the one below it means your environment
+session has been saved successfully.</li>
+</ul>
+<p><img
+src="file:///home/nycto/org/.attach/5a/959c99-4501-427e-9eef-5c2d423d9fbd/04.png" /></p>
+<ul>
+<li>Detach your session to exit on tmux by pressing <strong>(C-d or C-z
+d)</strong></li>
+<li>After that, execute this command when you are on $SHELL environment
+again: <strong>tmux kill-server</strong></li>
+</ul>
+<p><img
+src="file:///home/nycto/org/.attach/5a/959c99-4501-427e-9eef-5c2d423d9fbd/05.png" /></p>
+<ul>
+<li>Press (C-z C-r) to restore your saved session, as you can see in the
+image below.</li>
+</ul>
+<p><img
+src="file:///home/nycto/org/.attach/5a/959c99-4501-427e-9eef-5c2d423d9fbd/07.png" /></p>
+<h2 id="detachattach">Detach/Attach</h2>
+<ul>
+<li>Execute this inside your tmux or give any input according to your
+preferences then press <strong>(C-z d)</strong></li>
+</ul>
+<p><img
+src="file:///home/nycto/org/.attach/c6/5db290-d440-4548-bd30-a9ab7e01198b/Screenshot_2025-01-02_23-02-18.png" /></p>
+<ul>
+<li>Then you'll see something like this when you detached your
+session.</li>
+</ul>
+<p><img
+src="file:///home/nycto/org/.attach/c6/5db290-d440-4548-bd30-a9ab7e01198b/09.png" /></p>
+<ul>
+<li>If we want to attach again to that session we can just use this
+command then press RET:</li>
+</ul>
+<p><img
+src="file:///home/nycto/org/.attach/c6/5db290-d440-4548-bd30-a9ab7e01198b/10.png" /></p>
+<ul>
+<li>Then voila! We're back again with that session we have earlier.</li>
+</ul>
+<p><img
+src="file:///home/nycto/org/.attach/c6/5db290-d440-4548-bd30-a9ab7e01198b/11.png" /></p>
+<h2 id="splitting-windows">Splitting Windows</h2>
+<ul>
+<li>(C-z ') or (C-z v)</li>
+</ul>
+<p><img
+src="file:///home/nycto/org/.attach/ee/dc1276-1573-4e3b-b22e-133f1a0c3237/12.png" /></p>
+<h2 id="new-window-session">New window session</h2>
+<ul>
+<li>(C-z c) or (C-z C)</li>
+</ul>
+<p><img
+src="file:///home/nycto/org/.attach/e6/501012-adc3-4979-b3f9-93c9beee87b7/14.png" />
+<img
+src="file:///home/nycto/org/.attach/e6/501012-adc3-4979-b3f9-93c9beee87b7/13.png" /></p>
+<ul>
+<li>To locate your windows session: (C-z s)</li>
+</ul>
+<p><img
+src="file:///home/nycto/org/.attach/e6/501012-adc3-4979-b3f9-93c9beee87b7/15.png" /></p>
+<h1 id="closing-remarks">Closing Remarks</h1>
+<p>On this tmux setup we've walked through, you can now use tmux with
+such great smooth transition by customizing the default key bindings,
+integrating plugins, and tailoring tmux's appearance to suit your
+preferences. By using tmux, you can optimize your terminal environment
+and make your development process even more productive. Feel free to
+explore further tmux plugins and configurations to continue improving
+your setup. Happy tmuxing!</p>
+</body>
+<footer class="footer">
+      <div class="right">© 2025 Nycto</div>
+  <div class="footer-menu">
+    <a href="../index.html" class="footer-right">Home</a> ✾ 
+    <a href="../about.html" class="footer-right">About</a>
+  </p>
+</footer>
+</html>

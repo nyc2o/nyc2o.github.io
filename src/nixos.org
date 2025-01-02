@@ -184,7 +184,7 @@ These are the errors I experienced during the installation of NixOS.
  *lib.mkForce* function ensures that the root filesystem configuration *("/")* is applied even if other configurations might conflict or override it. This is particularly useful in situations where the root filesystem configuration needs to be explicitly set and maintained despite of any other potential conflicts.
  
 ** Root account is locked.
- [[../img/lock.png]
+ [[../img/lock.png]]
 
 While I was already inside NixOS, I accidentally deleted an important directory in my *root* account due to bad assumption. You might be wondering how I resolved this. Yes, I came back from scratch because I can't use a terminal on the live environment because my root account is locked, So I need to go on the live installation again when my boothable USB was already corrupted that time and I don't have an extra one. /Do you know now why article title is like that?./
 
@@ -221,21 +221,80 @@ To list the packages:
 #+end_src
 
 * Nix commands
-In my current user environment I am using a *nix commands* to install such packages.
+To enable the nix command in NixOS, copy and paste this snippet into your root NixOS configuration.
+#+begin_src
+ nix.settings.experimental-features = [ "nix-command" "flakes" ]; 
+#+end_src
+After your NixOS rebuild, make sure to test some main-commands like executing nix repl to make sure that it works.
+#+begin_src
+nix repl
 
-*To install a package:*
+nix-repl> 1000 * 1000
+1000000
+#+end_Src
+
+In my current user environment I am using a *nix experimental commands* to install such packages.
+To install a package:*
 #+begin_src nix
 # nix profile install nixpkgs#my_desired_package
 #+end_src
 
 *To locate or search packages:*
+These two experimental commands will give you the name of the package that you need.
 #+begin_src nix
 #  nix-locate desired_package
 #  nix search nixpkgs  desired_package
 #+end_src
 
-Those two commands will give you the name of the package that you need.
+* Flakes
+As you can see in my experimental features, I also have the flakes input enabled. Flakes are a new addition to the Nix ecosystem, It is designed to enhance the reproducibility and shareability of package management, development environments,
+and system configurations. In simple terms, Nix flakes provide a method for organizing and managing Nix-based projects. A "flake" is essentially a self-contained package or configuration that includes all the dependencies and
+setup needed to build or run a project. This approach simplifies the sharing and usage of Nix expressions—code that define how to build packages, systems, environments, and more—across different machines, for consistencies.
 
+* What's inside a flake?
+A flake.nix file is a central file defining the flake, which contains all the dependencies, configuration, and settings necessary to build or configure the flake.
+It specifies some metadata about the flake called Inputs, these are the dependencies of the flake, often other flakes, Nixpkgs, or external sources that the flake depends on and 
+Outputs are the values of building or configuring the flake.
+
+* Why use nix flakes?
+Flakes make sure that what you build on one machine will be identical on another, down to the last detail. It also supports collaboration where sharing and reusing Nix-based code becomes much easier since flakes explicitly
+define their dependencies or outputs and lastly self-contained, a flake is a complete, portable unit of Nix code, meaning it can be versioned, pinned, and shared in a very predictable way.
+
+* Example of a simple flake.nix file
+Since I am not that familiar on Nix expressions syntax yet. I am going to give you an example provided from the manual.
+
+To build a flake just follow the snippet below:
+#+begin_src
+> nix flake new hello
+> cd hello
+> nix build
+> nix run
+Hello, world!
+#+end_src
+
+The first one is a way to create you a flake.nix file into a directory named =hello=, a flake is a filesystem tree that contains a file named =flake.nix= in your root directory, second is to change directory
+from your root directory to hello directory, The third one is build the default package from the flake and run to see the output. Additionally, =flakes.lock= file that you'll see on the directory helps you ensure that running the
+project at different times or on different machines will produce the same results, as long as the lock file is used.
+
+When you open the flake.nix file this is what it looks like:
+#+begin_src
+  {
+  description = "A very basic flake";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+  };
+
+  outputs = { self, nixpkgs }: {
+
+    packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
+
+    packages.x86_64-linux.default = self.packages.x86_64-linux.hello;
+
+  };
+}
+#+end_src
 * Appreciation
  If you wish to know more about introduction of Nix Family you may go on this article—[[https://ebzzry.com/en/nix/#nixpaths][A Gentle Introduction to the Nix Family]] by [[https://ebzzry.com/eo/][ebzzry]]. Without his support, I won’t have my NixOS on my machine. Thanks to my cousin [[https://www.facebook.com/jasther25][Jasther]] who let me use his computer to gather information about NixOS, and [[https://www.facebook.com/rojieliamliezl][Roj]] who helped me to revive my corrupted boothable USB using *Hiren's BootCD* because of my negligence.
+ 
  

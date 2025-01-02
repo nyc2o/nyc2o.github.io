@@ -1,0 +1,261 @@
+#+title: Using Tmux to Perk Up Your Terminal Experience
+#+language: en
+#+startup: overview
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../css/nix.css">
+
+
+[[file:../index.html][Home]]   ✾   [[file:../about.html][About]]
+
+* Introduction
+As engineers, one of the essential tools we've always relied on is the terminal, due to its efficieny and
+speed that allows us to execute commands directly and quickly without the overhead of navigating through
+Graphical User Interfaces (GUIs). This is very useful for tasks like file management, system administration
+and building a project. One of us probably consumes a lot of time to work extensively in a single terminal
+and we need to open another terminal to do another tasks. In this article, we'll explore how [[https://github.com/tmux][tmux]] can help us avoid that.
+
+* Tmux Setup in NixOS
+**With flakes**:
+#+begin_src
+nix profile install nixpkgs#tmux
+#+END_SRC
+**Without flakes**:
+#+begin_src
+nix-env -iA nixpkgs.tmux
+#+end_src
+**To check if it is correctly installed**:
+#+begin_src
+$ tmux -V
+tmux 3.5a
+#+end_src
+
+*  Configuration
+To configure your tmux,If you don't have a configuratio file yet, you can reate a =~/.tmux.conf=. Since I am using vim now, here is my command:
+#+begin_src
+vim ~/.tmux.conf
+#+end_src
+
+After you have your configuration file, you can begin editing it. To give you an overview, here are the main
+sections you might want to add or configure in tmux. I'll go over each of these configuration steps with my own setup
+** Reload Configuration:
+
+By default, tmux uses =C-b (Ctrl + b)= as the prefix key. This means that to issue most tmux commands, you need to press C-b
+first, but we are going to change it to =C-z (Ctrl + z)=.
+#+begin_src
+set -g prefix C-z
+#+end_src
+
+To reload the configuration, Binds the =.= key to reload the tmux configuration file, which is useful for quickly reloading
+any changes made to =~/.tmux.conf= and
+#+begin_src
+bind . source-file ~/.tmux.conf
+#+END_SRC
+
+** 1. Unbinding Default Key Bindings
+The reason for using unbind in tmux configuration is to ensure the keys are not already bound to any other function
+before you reassign it.
+#+begin_src
+unbind C-b
+unbind C-l
+unbind "'"
+unbind '"'
+unbind -n M-left
+unbind -n M-right
+unbind -n M-up
+unbind -n M-down
+unbind %
+unbind Space
+unbind !
+unbind -n C-Left
+unbind -n C-Right
+unbind -n C-Up
+unbind -n C-Down
+#+END_SRC
+
+** 2. Vim-friendly
+This section enables vim-like navigation to make tmux more user-friendly.
+#+begin_src bash
+# vim keys
+setw -g mode-keys vi
+#+end_src
+This makes the navigation keys =h=, =j=, =k=, and =l= behave like they do in vim.
+
+** 3. Navigating Between Windows
+Next, the configuration customizes the arrow keys to efficiently navigate between tmux windows.
+#+begin_src bash
+bind Left  previous-window                                     #1
+bind Right next-window                                         #2
+bind Up    swap-window -t -1\; previous-window                 #3
+bind Down  swap-window -t +1\; next-window                     #4
+#+end_src
++ 1: Binds the left arrow key to navigate to the previous window.
++ 2: Binds the right arrow key to navigate to the next window.
++ 3: The up arrow key moves the current window one position up and switches to the previous window.
++ 4: The down arrow key moves the current window one position down and switches to the next window.
+** 4. Creating and Moving Windows
+This section customizes keys for creating new windows and moving windows around.
+#+begin_src bash
+bind c new-window -c "#{pane_current_path}"                    #1
+bind C new-window -c ~                                         #2
+#+end_src
++ 1: Binds =c= to create a new window in the current pane's directory.
++ 2: Binds =C= to create a new window in the home directory (=~=).
+** 5. Splitting Panes and Navigating Between Windows
+This section binds keys for splitting the terminal into multiple panes and
+for switching between the first to the last window.
+#+begin_src bash
+bind "'" split-window -v -c "#{pane_current_path}"              #1
+bind / split-window -h -c "#{pane_current_path}"                #2
+bind v split-window -h -c "#{pane_current_path}"                #3
+bind Space last-window                                          #4
+#+end_src
++ 1: Binds ='= to split the current pane vertically, and the new pane will inherit the current directory.
++ 2: Binds =/= to split the pane horizontally, again inheriting the current directory.
++ 3: This binds =v= to also split the pane horizontally, just like =/=.
++ 4: Binds the spacebar to switch to the last window, making it easy to toggle between the last two windows.
+** 6. General Settings
+#+begin_src bash
+set -g default-terminal "screen-256color"                       #1
+set -g default-shell $SHELL                                     #2
+set -g base-index 1                                             #3
+set -g history-limit 100000                                     #4
+set-option -ga terminal-overrides ",screen-256color:Tc"         #5
+set-option -g automatic-rename on                               #6
+set-option -g automatic-rename-format '#{b:pane_current_path}'  #7
+#+end_src
++ 1: Specifies the terminal type to be =screen-256color=, which supports **256 colors** and is ideal for terminal-based applications, including tmux.
++ 2: Sets the default shell to =$SHELL=, which is the value of the shell currently used in your terminal (e.g., =bash= or =zsh=).
++ 3: This sets the index of windows and panes to start at 1, instead of the default 0. This makes numbering consistent with many applications.
++ 4: Increases the scrollback buffer history to *100,000* lines. This allows tmux to store a larger history, so you can scroll through and review more terminal output.
++ 5: Adds a terminal override to ensure true color support (24-bit color) for tmux when using =screen-256color=.
++ 6: Enables automatic renaming of windows based on the name of the running process (useful for identifying windows by the task).
++ 7: Customizes the format of the automatic renaming to use the current directory =(pane_current_path)= of the active pane,
+  which can help identify the purpose of a window based on its directory.
+** 7. Window and Pane Settings
+This section customizes the appearance and behavior of tmux windows and panes.
+#+begin_src bash
+set-window-option -g mode-keys vi                                #1
+setw -g window-active-style 'bg=#181107'                         #2
+setw -g window-style 'bg=#181107'                                #3
+setw -g window-status-format "#I:#W#F "                          #4
+setw -g window-status-style 'fg=white,bg=#090702,bold'           #5
+setw -g window-status-current-format "#I:#W#F "                  #6
+setw -g window-status-current-style 'fg=orange,bg=#181107,bold'  #7
+set -g status-interval 1                                         #8
+set -g status-position bottom                                    #9
+set -g status-bg "#090702"                                       #10
+set -g status-fg "#D4D4D4"                                       #11
+set -g status-left ''                                            #12
+set -g status-left-style 'fg=orange,bg=#181107'                  #13
+set -g status-right '#{prefix_highlight}'                        #14
+set -g status-right-length 50                                    #15
+set -g status-right-style 'fg=orange,bg=#181107'                 #16
+set -g pane-border-style 'fg=#090702,bg=#181107'                 #17
+set -g pane-active-border-style 'fg=orange,bg=#181107'           #18
+set -g pane-border-lines 'heavy'                                 #19
+#+end_src
++ 1: Enables **vi**-style key bindings for tmux's copy mode. This allows you to navigate through the output using vim-like keys (e.g., =h=, =j=, =k=, =l=).
++ 2: Customizes the background color of the active window to =#181107=.
++ 3: Sets the default background color for all windows to =#181107=, which helps maintain a consistent color scheme.
++ 4: Defines the format for displaying window status. This includes the window index (=#I=), window name (=#W=), and the window flags (=#F=).
++ 5: Sets the style for inactive windows, making them white text on a dark background with bold font.
++ 6: Defines the format for the currently active window, which is the same as the inactive window but highlighted.
++ 7: Sets the style for the active window, making it orange text on a dark background with bold font.
++ 8: Sets the interval (in seconds) for updating the status line. A value of 1 means tmux will update the status line every second.
++ 9: Places the status bar at the bottom of the tmux window.
++ 10: Sets the background color of the status line to a dark color =#090702=.
++ 11: Sets the foreground (text) color of the status line to light gray =(#D4D4D4)=.
++ 12: Clears the left section of the status line.
++ 13: Styles the left section of the status line with orange text on a dark background.
++ 14: Displays the current prefix key =(#{prefix_highlight})= in the right section of the status line.
++ 15: Limits the right section of the status line to a length of 50 characters.
++ 16: Styles the right section of the status line with orange text on a dark background.
++ 17: Customizes the appearance of pane borders, setting the foreground color to dark and the background to a slightly lighter dark color.
++ 18: Sets the border style of the active pane to have an orange foreground and dark background.
++ 19: Changes the border lines between panes to a "heavy" style, making the borders more prominent.
+** 8. Plugin Management
+This section sets up the plugins for tmux, allowing you to enhance its functionality with various tmux plugins.
+#+begin_src bash
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-yank'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+set -g @plugin 'tmux-plugins/tmux-prefix-highlight'
+set -g @continuum-restore 'on'
+set -g @plugin 'christoomey/vim-tmux-navigator'
+#+end_src
+*** [[https://github.com/tmux-plugins/tpm][Tmux Plugin Manager:]]
+  This enables the **tmux plugin manager** which simplifies the installation and management of tmux plugins.
+*** [[https://github.com/tmux-plugins/tmux-resurrect][Resurrect]]:
+  **tmux-resurrect** plugin saves and restores tmux sessions, windows, panes, and their contents.
+*** [[https://github.com/tmux-plugins/tmux-sensible][Sensible]]:
+  **tmux-sensible** plugin provides a set of sensible default tmux configurations for a better out-of-the-box experience.
+*** [[https://github.com/tmux-plugins/tmux-yank][Yank]]:
+  **tmux-yank** plugin allowing us to copy and paste text between tmux and the system clipboard.
+*** [[https://github.com/tmux-plugins/tmux-continuum][Continuum]]:
+  **tmux-continuum** ensures that tmux sessions are automatically saved and restored across reboots.
+*** [[https://github.com/tmux-plugins/tmux-prefix-highlight][Prefix-highlights]]:
+  **tmux-prefix-highlight** highlights the prefix key (e.g., =Ctrl + z=) when it is pressed, helping
+  you identify when tmux commands are being triggered.
+*** [[https://github.com/tmux-plugins/tmux-resurrect][Restore]]:
+  Ensures that **tmux-continuum** automatically restores your tmux session when tmux starts up.
+*** [[https://github.com/christoomey/vim-tmux-navigator][Navigator]]:
+  **Vim-tmux-navigator** plugin allows seamless navigation between vim and tmux panes using
+  the same keybindings (e.g., =h=, =j=, =k=, =l=).
+** 9. Initializing Plugins
+Finally, this line loads the tmux plugins configured above.
+#+begin_src bash
+run '~/.tmux/plugins/tpm/tpm'
+#+end_src
+This loads the tmux plugin manager (TPM) and installs the plugins that have been specified. To install the plugins, you can just use =C-z I=.
+
+* Playground
+This sections will show you my favorite and important features while using tmux.
+** Execute tmux
+:PROPERTIES:
+:ID:       42be7642-7ac5-4c87-9056-7222d5b0efda
+:END:
+[[attachment:02.png]]
+** Save session
+:PROPERTIES:
+:ID:       5a959c99-4501-427e-9eef-5c2d423d9fbd
+:END:
+- When you are already inside tmux, If you want to save your session. Simply execute this command: *(C-z C-s)*
+[[attachment:03.png]]
+- When you see a message like the one below it means your environment session has been saved successfully.
+[[attachment:04.png]]
+- Detach your session to exit on tmux by pressing *(C-d or C-z d)*
+- After that, execute this command when you are on $SHELL environment again: *tmux kill-server*
+[[attachment:05.png]]
+- Press (C-z C-r) to restore your saved session, as you can see in the image below.
+[[attachment:07.png]]
+** Detach/Attach
+:PROPERTIES:
+:ID:       c65db290-d440-4548-bd30-a9ab7e01198b
+:END:
+- Execute this inside your tmux or give any input according to your preferences then press *(C-z d)*
+[[attachment:Screenshot_2025-01-02_23-02-18.png]]
+- Then you'll see something like this when you detached your session.
+[[attachment:09.png]]
+- If we want to attach again to that session we can just use this command then press RET:
+[[attachment:10.png]]
+- Then voila! We're back again with that session we have earlier.
+[[attachment:11.png]]
+** Splitting Windows
+:PROPERTIES:
+:ID:       eedc1276-1573-4e3b-b22e-133f1a0c3237
+:END:
+- (C-z ') or (C-z v)
+[[attachment:12.png]]
+** New window session
+:PROPERTIES:
+:ID:       e6501012-adc3-4979-b3f9-93c9beee87b7
+:END:
+- (C-z c) or (C-z C)
+[[attachment:14.png]]
+[[attachment:13.png]]
+- To locate your windows session: (C-z s)
+[[attachment:15.png]]
+
+* Closing Remarks
+On this tmux setup we've walked through, you can now use tmux with such great smooth transition by customizing the default key bindings, integrating plugins, and tailoring tmux's appearance to suit your preferences. By using tmux, you can optimize your terminal environment and make your development process even more productive. Feel free to explore further tmux plugins and configurations to continue improving your setup. Happy tmuxing!
