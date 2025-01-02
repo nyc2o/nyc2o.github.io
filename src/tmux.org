@@ -212,35 +212,35 @@ This loads the tmux plugin manager (TPM) and installs the plugins that have been
 * Playground
 This sections will show you my favorite and important features while using tmux.
 ** Execute tmux
-[[..img/02.png]]
+[[../img/02.png]]
 ** Save session
 - When you are already inside tmux, If you want to save your session. Simply execute this command: *(C-z C-s)*
-[[..img/03.png]]
+[[../img/03.png]]
 - When you see a message like the one below it means your environment session has been saved successfully.
-[[..img/04.png]]
+[[../img/04.png]]
 - Detach your session to exit on tmux by pressing *(C-d or C-z d)*
 - After that, execute this command when you are on $SHELL environment again: *tmux kill-server*
-[[..img/05.png]]
+[[../img/05.png]]
 - Press (C-z C-r) to restore your saved session, as you can see in the image below.
-[[..img/07.png]]
+[[../img/07.png]]
 ** Detach/Attach
 - Execute this inside your tmux or give any input according to your preferences then press *(C-z d)*
-[[..img/Screenshot_2025-01-02_23-02-18.png]]
+[[../img/Screenshot_2025-01-02_23-02-18.png]]
 - Then you'll see something like this when you detached your session.
-[[..img/09.png]]
+[[../img/09.png]]
 - If we want to attach again to that session we can just use this command then press RET:
-[[..img/10.png]]
+[[../img/10.png]]
 - Then voila! We're back again with that session we have earlier.
-[[..img/11.png]]
+[[../img/11.png]]
 ** Splitting Windows
 - (C-z ') or (C-z v)
-[[..img/12.png]]
+[[../img/12.png]]
 ** New window session
 - (C-z c) or (C-z C)
-[[..img/14.png]]
-[[..img/13.png]]
+[[../img/14.png]]
+[[../img/13.png]]
 - To locate your windows session: (C-z s)
-[[..img/15.png]]
+[[../img/15.png]]
 
 * Closing Remarks
 On this tmux setup we've walked through, you can now use tmux with such great smooth transition by customizing the default key bindings, integrating plugins, and tailoring tmux's appearance to suit your preferences. By using tmux, you can optimize your terminal environment and make your development process even more productive. Feel free to explore further tmux plugins and configurations to continue improving your setup. Happy tmuxing!
