@@ -212,50 +212,35 @@ This loads the tmux plugin manager (TPM) and installs the plugins that have been
 * Playground
 This sections will show you my favorite and important features while using tmux.
 ** Execute tmux
-:PROPERTIES:
-:ID:       42be7642-7ac5-4c87-9056-7222d5b0efda
-:END:
-[[attachment:02.png]]
+[[..img/02.png]]
 ** Save session
-:PROPERTIES:
-:ID:       5a959c99-4501-427e-9eef-5c2d423d9fbd
-:END:
 - When you are already inside tmux, If you want to save your session. Simply execute this command: *(C-z C-s)*
-[[attachment:03.png]]
+[[..img/03.png]]
 - When you see a message like the one below it means your environment session has been saved successfully.
-[[attachment:04.png]]
+[[..img/04.png]]
 - Detach your session to exit on tmux by pressing *(C-d or C-z d)*
 - After that, execute this command when you are on $SHELL environment again: *tmux kill-server*
-[[attachment:05.png]]
+[[..img/05.png]]
 - Press (C-z C-r) to restore your saved session, as you can see in the image below.
-[[attachment:07.png]]
+[[..img/07.png]]
 ** Detach/Attach
-:PROPERTIES:
-:ID:       c65db290-d440-4548-bd30-a9ab7e01198b
-:END:
 - Execute this inside your tmux or give any input according to your preferences then press *(C-z d)*
-[[attachment:Screenshot_2025-01-02_23-02-18.png]]
+[[..img/Screenshot_2025-01-02_23-02-18.png]]
 - Then you'll see something like this when you detached your session.
-[[attachment:09.png]]
+[[..img/09.png]]
 - If we want to attach again to that session we can just use this command then press RET:
-[[attachment:10.png]]
+[[..img/10.png]]
 - Then voila! We're back again with that session we have earlier.
-[[attachment:11.png]]
+[[..img/11.png]]
 ** Splitting Windows
-:PROPERTIES:
-:ID:       eedc1276-1573-4e3b-b22e-133f1a0c3237
-:END:
 - (C-z ') or (C-z v)
-[[attachment:12.png]]
+[[..img/12.png]]
 ** New window session
-:PROPERTIES:
-:ID:       e6501012-adc3-4979-b3f9-93c9beee87b7
-:END:
 - (C-z c) or (C-z C)
-[[attachment:14.png]]
-[[attachment:13.png]]
+[[..img/14.png]]
+[[..img/13.png]]
 - To locate your windows session: (C-z s)
-[[attachment:15.png]]
+[[..img/15.png]]
 
 * Closing Remarks
 On this tmux setup we've walked through, you can now use tmux with such great smooth transition by customizing the default key bindings, integrating plugins, and tailoring tmux's appearance to suit your preferences. By using tmux, you can optimize your terminal environment and make your development process even more productive. Feel free to explore further tmux plugins and configurations to continue improving your setup. Happy tmuxing!
