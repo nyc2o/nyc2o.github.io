@@ -1,6 +1,13 @@
-/* code block */
+html {
+  color: #e0e0e0; /* Light text color for dark background */
+  background-color: #121212; /* Dark background for dark mode */
+}
 
 /* Style for the source code block */
+body {
+  max-width: 45em; 
+}
+
 .sourceCode {
     font-size: 12.5px;
     font-family: monospace;
@@ -9,7 +16,7 @@
     overflow-x: auto; 
     white-space: pre; 
     box-shadow: 0 0px 1px rgba(1,1,1,0.5); 
-    
+    border: 1px solid #888888;  /* Darker, softer gray border */
 }
 
 .sourceCode code {
@@ -20,9 +27,9 @@
 a {
     color: #0074d9; 
     text-decoration: none; 
+    color: #FC8028 !important;  /* Force the color to be white */
+    text-decoration: none; /* If you want to remove the underline */
 }
-
-
 
 /* ----- */
 
@@ -30,31 +37,32 @@ h1 {
     font-weight: bold;
     font-size: 30px;
 }
-h1
-{
-    border-bottom: 1px solid black;
+
+h1 {
+    border-bottom: 1px solid #FD8127;  /* Softer gray border */
 }
+
 h2 {
-    border-bottom: 2px solid #ccc;
+    border-bottom: 2px solid #FD8127;  /* Softer gray border */
 }
-h2
-{
-    
+
+h2 {
     font-size: 18px;
     font-family: Poppins;
-
 }
+
 .title {
     font-size: 45px;
 }
-.author
-{
+
+.author {
     font-size: 20px;
     margin-bottom: 10px;
 }
+
 p, li {
     font-size: 16px;
-  font-family: 'Times New Roman', sans-serif;
+    font-family: 'Times New Roman', sans-serif;
 }
 
 .footer {
@@ -62,25 +70,27 @@ p, li {
     justify-content: space-between;
     padding: 10px;
     background-color: #0000;
-    border-top: 1px solid black;
+    border-top: 1px solid #FD8127;
     margin-top: 10px;
     font-size: 12px;
 }
+
 .footer .left {
     text-align: left;
 }
-.footer .right {
-    text-align: right;
-}
-.footer-menu a:hover {
 
+.footer-right {
+    text-align: right;
+    color: white;
+}
+
+.footer-menu a:hover {
     color: blue; 
     text-decoration: underline; 
 }
 
-/* code block */ 
-.shell
- {
+/* Code block for shell */
+.shell {
     font-size: 15.5px;
     font-family: monospace;
     border-radius: 4px;
@@ -88,7 +98,7 @@ p, li {
     overflow-x: auto; 
     white-space: pre; 
     box-shadow: 0 0px 1px rgba(1,1,1,0.5); 
-    
+    border: 1px solid #888888;  /* Darker, softer gray border */
 }
 
 .shell code {
@@ -96,5 +106,13 @@ p, li {
     white-space: pre;
 }
 
+.footer-menu a {
+    color: white !important;  /* Force the color to be white */
+    text-decoration: none; /* If you want to remove the underline */
+}
 
+.footer-menu a:hover {
+    color: #0074d9; /* Optionally add a hover effect */
+    text-decoration: underline;
+}
 

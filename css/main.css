@@ -1,81 +1,131 @@
- ul {
-     font-family: 'Times New Roman', sans-serif;
-     font-style: bold;
-     margin-top: 50px;
-     list-style-type: none; 
-     padding: 0;
+  html {
+  color: #e0e0e0; /* Light text color for dark background */
+  background-color: #121212; /* Dark background for dark mode */
+}
+
+body {
+  max-width: 50em; 
+  color: white;
+}
+
+
+ul {
+  font-family: 'Roboto';
+  font-weight: 400px;
+  margin-top: 30px;
+  list-style-type: none; 
+  padding: 0;
+  color: white;
 }
 
 li {
-     font-size: 18px;
-     position: relative; 
-     padding-left: 25px; 
+  font-size: 17px;
+  position: relative; 
+  padding-left: 25px; 
+  color: white;
+}
+
+a[href="articles/ubuntu.html"] {
+  color: white;
+}
+
+a[href="articles/fiveam.html"] {
+  color: white;
+}
+
+a[href="articles/nixos.html"] {
+  color: white;
+}
+
+a[href="articles/docker.html"] {
+  color: white;
+}
+
+a[href="articles/parser.html"] {
+  color: white;
+}
+
+a[href="articles/tmux.html"] {
+  color: white;
+}
+
+li a {
+  color: white;
+  text-decoration: none;
 }
 
 li::before {
-     content: '✵'; 
-     position: absolute;
-     left: 0; /
-     font-size: 16px; 
+  content: '✵'; 
+  position: absolute;
+  left: 0;
+  font-size: 16px; 
+  color: #E1FFBB;
 }
 
 li a:hover {
-     color: blue; 
-     text-decoration: underline; 
+  color: white;
+  text-decoration: underline;
 }
-h1
-{
-    font-family: 'Roboto', sans-serif;
-    border-bottom: 5px solid black;
-    font-size: 45px;
+
+h1 {
+  font-family: 'Roboto', sans-serif;
+  border-bottom: 5px solid #FD8127;
+  font-size: 45px;
+  color: #f1f1f1;
 }
-p
-{
-    margin-top: 25px;
+
+p {
+  margin-top: 25px;
   font-family: 'Times New Roman', sans-serif;
-    font-size: 15px;
-    font-style: italic;
-    text-align: left;
-    color: #00000;
+  font-size: 17px;
+  font-style: italic;
+  text-align: left;
+  color: white;
 }
 
 .update {
-    text-align: center;
-    font-size: 14px;
-    font-style: italic;
-    margin: 0;
-    margin-top: -50px;
+  text-align: center;
+  font-size: 14px;
+  font-style: italic;
+  margin: 0;
+  margin-top: -50px;
+  color: white;
 }
 
-
 .footer {
-    border-top: 1px solid black;
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    font-size: 12px;
+  border-top: 1px solid #FD8127;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  font-size: 12px;
+  color: white;
 }
 
 .footer-menu {
-    display: flex;
-    text-align: right;
-    font-size: 12px;
-    margin: 0; 
-   
+  display: flex;
+  text-align: right;
+  font-size: 13.5px;
+  margin: 0; 
+  color: white;
 }
 
 .footer-right {
-    text-align: right;
-    margin: 0 12px; 
+  text-align: right;
+  margin: 0 12px; 
+  color: white;
 }
 
 .left, .right {
-    margin: 0 10px;
+  margin: 0 10px;
+  color: white;
+}
+
+.footer-menu a {
+  color: white;
+  text-decoration: none;
 }
 
 .footer-menu a:hover {
-
-    color: blue; 
-    text-decoration: underline; 
+  color: blue;
+  text-decoration: underline;
 }
-

@@ -13,14 +13,27 @@ Graphical User Interfaces (GUIs). This is very useful for tasks like file manage
 and building a project. One of us probably consumes a lot of time to work extensively in a single terminal
 and we need to open another terminal to do another tasks. In this article, we'll explore how [[https://github.com/tmux][tmux]] can help us avoid that.
 
-* Tmux Setup in NixOS
+* Installation
+** Debian/Ubuntu
+#+begin_src
+$ sudo apt install tmux -y
+#+end_src
+** Arch
+#+begin_Src
+$ sudo pacman -S tmux
+#+end_src
+** CentOS8+/Fedora/RHEL
+#+begin_src
+$ sudo dnf install tmux -y
+#+end_src
+** NixOS
 **With flakes**:
 #+begin_src
-nix profile install nixpkgs#tmux
+$ nix profile install nixpkgs#tmux
 #+END_SRC
 **Without flakes**:
 #+begin_src
-nix-env -iA nixpkgs.tmux
+$ nix-env -iA nixpkgs.tmux
 #+end_src
 **To check if it is correctly installed**:
 #+begin_src
@@ -28,15 +41,15 @@ $ tmux -V
 tmux 3.5a
 #+end_src
 
-*  Configuration
+* Configuration
 To configure your tmux,If you don't have a configuratio file yet, you can reate a =~/.tmux.conf=. Since I am using vim now, here is my command:
 #+begin_src
-vim ~/.tmux.conf
+$ vim ~/.tmux.conf
 #+end_src
 
 After you have your configuration file, you can begin editing it. To give you an overview, here are the main
 sections you might want to add or configure in tmux. I'll go over each of these configuration steps with my own setup
-** Reload Configuration:
+** Reload Configuration
 
 By default, tmux uses =C-b (Ctrl + b)= as the prefix key. This means that to issue most tmux commands, you need to press C-b
 first, but we are going to change it to =C-z (Ctrl + z)=.
@@ -87,18 +100,18 @@ bind Right next-window                                         #2
 bind Up    swap-window -t -1\; previous-window                 #3
 bind Down  swap-window -t +1\; next-window                     #4
 #+end_src
-+ 1: Binds the left arrow key to navigate to the previous window.
-+ 2: Binds the right arrow key to navigate to the next window.
-+ 3: The up arrow key moves the current window one position up and switches to the previous window.
-+ 4: The down arrow key moves the current window one position down and switches to the next window.
+1. Binds the left arrow key to navigate to the previous window.
+2. Binds the right arrow key to navigate to the next window.
+3. The up arrow key moves the current window one position up and switches to the previous window.
+4. The down arrow key moves the current window one position down and switches to the next window.
 ** 4. Creating and Moving Windows
 This section customizes keys for creating new windows and moving windows around.
 #+begin_src bash
 bind c new-window -c "#{pane_current_path}"                    #1
 bind C new-window -c ~                                         #2
 #+end_src
-+ 1: Binds =c= to create a new window in the current pane's directory.
-+ 2: Binds =C= to create a new window in the home directory (=~=).
+1. Binds =c= to create a new window in the current pane's directory.
+2. Binds =C= to create a new window in the home directory (=~=).
 ** 5. Splitting Panes and Navigating Between Windows
 This section binds keys for splitting the terminal into multiple panes and
 for switching between the first to the last window.
@@ -108,10 +121,10 @@ bind / split-window -h -c "#{pane_current_path}"                #2
 bind v split-window -h -c "#{pane_current_path}"                #3
 bind Space last-window                                          #4
 #+end_src
-+ 1: Binds ='= to split the current pane vertically, and the new pane will inherit the current directory.
-+ 2: Binds =/= to split the pane horizontally, again inheriting the current directory.
-+ 3: This binds =v= to also split the pane horizontally, just like =/=.
-+ 4: Binds the spacebar to switch to the last window, making it easy to toggle between the last two windows.
+1. Binds ='= to split the current pane vertically, and the new pane will inherit the current directory.
+2. Binds =/= to split the pane horizontally, again inheriting the current directory.
+3. This binds =v= to also split the pane horizontally, just like =/=.
+4. Binds the spacebar to switch to the last window, making it easy to toggle between the last two windows.
 ** 6. General Settings
 #+begin_src bash
 set -g default-terminal "screen-256color"                       #1
@@ -122,14 +135,14 @@ set-option -ga terminal-overrides ",screen-256color:Tc"         #5
 set-option -g automatic-rename on                               #6
 set-option -g automatic-rename-format '#{b:pane_current_path}'  #7
 #+end_src
-+ 1: Specifies the terminal type to be =screen-256color=, which supports **256 colors** and is ideal for terminal-based applications, including tmux.
-+ 2: Sets the default shell to =$SHELL=, which is the value of the shell currently used in your terminal (e.g., =bash= or =zsh=).
-+ 3: This sets the index of windows and panes to start at 1, instead of the default 0. This makes numbering consistent with many applications.
-+ 4: Increases the scrollback buffer history to *100,000* lines. This allows tmux to store a larger history, so you can scroll through and review more terminal output.
-+ 5: Adds a terminal override to ensure true color support (24-bit color) for tmux when using =screen-256color=.
-+ 6: Enables automatic renaming of windows based on the name of the running process (useful for identifying windows by the task).
-+ 7: Customizes the format of the automatic renaming to use the current directory =(pane_current_path)= of the active pane,
-  which can help identify the purpose of a window based on its directory.
+1. Specifies the terminal type to be =screen-256color=, which supports **256 colors** and is ideal for terminal-based applications, including tmux.
+2. Sets the default shell to =$SHELL=, which is the value of the shell currently used in your terminal (e.g., =bash= or =zsh=).
+3. This sets the index of windows and panes to start at 1, instead of the default 0. This makes numbering consistent with many applications.
+4. Increases the scrollback buffer history to *100,000* lines. This allows tmux to store a larger history, so you can scroll through and review more terminal output.
+5. Adds a terminal override to ensure true color support (24-bit color) for tmux when using =screen-256color=.
+6. Enables automatic renaming of windows based on the name of the running process (useful for identifying windows by the task).
+7. Customizes the format of the automatic renaming to use the current directory =(pane_current_path)= of the active pane,
+   which can help identify the purpose of a window based on its directory.
 ** 7. Window and Pane Settings
 This section customizes the appearance and behavior of tmux windows and panes.
 #+begin_src bash
@@ -153,25 +166,25 @@ set -g pane-border-style 'fg=#090702,bg=#181107'                 #17
 set -g pane-active-border-style 'fg=orange,bg=#181107'           #18
 set -g pane-border-lines 'heavy'                                 #19
 #+end_src
-+ 1: Enables **vi**-style key bindings for tmux's copy mode. This allows you to navigate through the output using vim-like keys (e.g., =h=, =j=, =k=, =l=).
-+ 2: Customizes the background color of the active window to =#181107=.
-+ 3: Sets the default background color for all windows to =#181107=, which helps maintain a consistent color scheme.
-+ 4: Defines the format for displaying window status. This includes the window index (=#I=), window name (=#W=), and the window flags (=#F=).
-+ 5: Sets the style for inactive windows, making them white text on a dark background with bold font.
-+ 6: Defines the format for the currently active window, which is the same as the inactive window but highlighted.
-+ 7: Sets the style for the active window, making it orange text on a dark background with bold font.
-+ 8: Sets the interval (in seconds) for updating the status line. A value of 1 means tmux will update the status line every second.
-+ 9: Places the status bar at the bottom of the tmux window.
-+ 10: Sets the background color of the status line to a dark color =#090702=.
-+ 11: Sets the foreground (text) color of the status line to light gray =(#D4D4D4)=.
-+ 12: Clears the left section of the status line.
-+ 13: Styles the left section of the status line with orange text on a dark background.
-+ 14: Displays the current prefix key =(#{prefix_highlight})= in the right section of the status line.
-+ 15: Limits the right section of the status line to a length of 50 characters.
-+ 16: Styles the right section of the status line with orange text on a dark background.
-+ 17: Customizes the appearance of pane borders, setting the foreground color to dark and the background to a slightly lighter dark color.
-+ 18: Sets the border style of the active pane to have an orange foreground and dark background.
-+ 19: Changes the border lines between panes to a "heavy" style, making the borders more prominent.
+1. Enables **vi**-style key bindings for tmux's copy mode. This allows you to navigate through the output using vim-like keys (e.g., =h=, =j=, =k=, =l=).
+2. Customizes the background color of the active window to =#181107=.
+3. Sets the default background color for all windows to =#181107=, which helps maintain a consistent color scheme.
+4. Defines the format for displaying window status. This includes the window index (=#I=), window name (=#W=), and the window flags (=#F=).
+5. Sets the style for inactive windows, making them white text on a dark background with bold font.
+6. Defines the format for the currently active window, which is the same as the inactive window but highlighted.
+7. Sets the style for the active window, making it orange text on a dark background with bold font.
+8. Sets the interval (in seconds) for updating the status line. A value of 1 means tmux will update the status line every second.
+9. Places the status bar at the bottom of the tmux window.
+10. Sets the background color of the status line to a dark color =#090702=.
+11. Sets the foreground (text) color of the status line to light gray =(#D4D4D4)=.
+12. Clears the left section of the status line.
+13. Styles the left section of the status line with orange text on a dark background.
+14. Displays the current prefix key =(#{prefix_highlight})= in the right section of the status line.
+15. Limits the right section of the status line to a length of 50 characters.
+16. Styles the right section of the status line with orange text on a dark background.
+17. Customizes the appearance of pane borders, setting the foreground color to dark and the background to a slightly lighter dark color.
+18. Sets the border style of the active pane to have an orange foreground and dark background.
+19. Changes the border lines between panes to a "heavy" style, making the borders more prominent.
 ** 8. Plugin Management
 This section sets up the plugins for tmux, allowing you to enhance its functionality with various tmux plugins.
 #+begin_src bash
