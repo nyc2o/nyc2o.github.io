@@ -1,4 +1,4 @@
-#+title: Constellations of@@html:<br />@@Awakening
+#+title: (:Constellation [Awakening])
 #+author: Nycto
 #+language: en
 #+startup: overview
