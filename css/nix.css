@@ -1,6 +1,6 @@
 html {
-  color: #e0e0e0; /* Light text color for dark background */
-  background-color: #121212; /* Dark background for dark mode */
+  color: #e0e0e0; 
+  background-color: #121212; 
 }
 
 /* Style for the source code block */
@@ -16,7 +16,7 @@ body {
     overflow-x: auto; 
     white-space: pre; 
     box-shadow: 0 0px 1px rgba(1,1,1,0.5); 
-    border: 1px solid #888888;  /* Darker, softer gray border */
+    border: 1px solid #888888; 
 }
 
 .sourceCode code {
@@ -27,8 +27,8 @@ body {
 a {
     color: #0074d9; 
     text-decoration: none; 
-    color: #FC8028 !important;  /* Force the color to be white */
-    text-decoration: none; /* If you want to remove the underline */
+    color: #FC8028 !important;  
+    text-decoration: none;
 }
 
 /* ----- */
@@ -39,11 +39,11 @@ h1 {
 }
 
 h1 {
-    border-bottom: 1px solid #FD8127;  /* Softer gray border */
+    border-bottom: 1px solid #FD8127;  
 }
 
 h2 {
-    border-bottom: 2px solid #FD8127;  /* Softer gray border */
+    border-bottom: 2px solid #FD8127; 
 }
 
 h2 {
@@ -98,7 +98,7 @@ p, li {
     overflow-x: auto; 
     white-space: pre; 
     box-shadow: 0 0px 1px rgba(1,1,1,0.5); 
-    border: 1px solid #888888;  /* Darker, softer gray border */
+    border: 1px solid #888888;
 }
 
 .shell code {
@@ -107,12 +107,12 @@ p, li {
 }
 
 .footer-menu a {
-    color: white !important;  /* Force the color to be white */
-    text-decoration: none; /* If you want to remove the underline */
+    color: white !important;  
+    text-decoration: none;
 }
 
 .footer-menu a:hover {
-    color: #0074d9; /* Optionally add a hover effect */
+    color: #0074d9; 
     text-decoration: underline;
 }
 
